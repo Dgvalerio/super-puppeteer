@@ -13,7 +13,7 @@ const branch = { commit: { sha: config.github.branch_sha } };
 
   const response = await octokit.request('GET /repos/{owner}/{repo}/commits', {
     owner: 'lubysoftware',
-    repo: 'multi-fit-app',
+    repo: config.github.repository,
     author: email,
     sha: branch.commit.sha,
     per_page: 100,

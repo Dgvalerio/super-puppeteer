@@ -6,8 +6,9 @@ export default {
   },
   github: {
     email: 'email_do_github@mail.com',
-    token: 'github_token',
+    repository: 'multi-fit-app',
     // SHA da branch, esse aí é o da Develop
+    token: 'github_token',
     branch_sha: '2f63fbdd14d68d4c4494818883ecd69e09239d01',
   },
 };
