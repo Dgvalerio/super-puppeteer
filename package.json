@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start:pup": "tsnd --respawn --transpile-only src/puppeteer.ts",
-    "start:git": "tsnd --respawn --transpile-only src/github.ts"
+    "start:git": "tsnd --respawn --transpile-only src/github.ts",
+    "get:branchs": "tsnd --respawn --transpile-only src/getBranchs.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.45.0",
