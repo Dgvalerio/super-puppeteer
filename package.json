@@ -6,9 +6,10 @@
   "author": "Davi GV <al.davigvalerio@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start:pup": "tsnd --respawn --transpile-only src/puppeteer.ts",
-    "start:git": "tsnd --respawn --transpile-only src/github.ts",
-    "get:branchs": "tsnd --respawn --transpile-only src/getBranchs.ts"
+    "start:project": "mkdir markdowns && (cp config.example.ts config.ts)||(copy config.example.ts config.ts)",
+    "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
+    "git:get-commits": "tsnd --respawn --transpile-only src/github/get-commits.ts",
+    "pup:send-appointments": "tsnd --respawn --transpile-only src/timesheet/puppeteer.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.45.0",
@@ -20,11 +21,11 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.4"
   },
   "dependencies": {
     "@octokit/types": "^8.0.0",
     "octokit": "^2.0.10",
-    "puppeteer": "^19.3.0"
+    "puppeteer": "^19.4.1"
   }
 }

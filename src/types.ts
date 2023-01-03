@@ -1,10 +1,10 @@
 import { Endpoints } from '@octokit/types';
 
 export interface IAppointments extends ISimpleAppointments {
-  client: '8231';
-  project: '18548';
-  category: '1';
-  notMonetize: false;
+  client: string;
+  project: string;
+  category: string;
+  notMonetize: boolean;
 }
 
 export interface ISimpleAppointments {
@@ -28,4 +28,46 @@ export interface SimpleCommit {
 export interface GroupedCommit {
   date: string;
   description: string;
+}
+
+export interface ConfigurationTypes {
+  timesheet: {
+    // E-mail para realizar login na sua conta do timesheet oficial.
+    login: string;
+    // Senha para realizar login na sua conta do timesheet oficial.
+    password: string;
+  };
+  github: {
+    // Seu token do Github para poder realizar a busca commits até nos repositórios privados.
+    token: string;
+    // E-mail do seu usuário no Github para buscar os commits (caso não informado, recupera do token).
+    email?: string;
+    // Repositório que você deseja procurar seus commits.
+    repositories: {
+      // Nome do repositório.
+      name: string;
+      // SHA da branch.
+      branch_sha?: string;
+    }[];
+    // Data da busca
+    when?: {
+      // Desde quando (no formato 2022-12-01T00:00:00Z).
+      since?: string;
+      // Até quando (no formato 2022-12-01T00:00:00Z).
+      until?: string;
+    };
+  };
+  appointmentConfig: {
+    // Horários que você deseja apontar (lembre de deixar pelo menos uma hora para almoço).
+    dayTimes: {
+      // Horário inicial do apontamento (no formato HH:MM).
+      start: string;
+      // Horário final do apontamento (no formato HH:MM).
+      end: string;
+    }[];
+  };
+  appointments?: {
+    date: string;
+    descriptions: string[];
+  }[];
 }

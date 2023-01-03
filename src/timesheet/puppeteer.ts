@@ -7,8 +7,9 @@ import puppeteer, {
   Protocol,
 } from 'puppeteer';
 
-import { appointments } from '../appointments';
-import config from '../config';
+import config from '../../config';
+import { IAppointments } from '../types';
+import { make } from '../utils';
 
 export type PuppeteerLaunchOptions = LaunchOptions &
   BrowserLaunchArgumentOptions &
@@ -24,11 +25,6 @@ export const puppeteerOptions: PuppeteerLaunchOptions = {
 };
 
 const baseURL = `https://luby-timesheet.azurewebsites.net`;
-
-const input = {
-  login: config.azure.login,
-  password: config.azure.password,
-};
 
 export const scrapper = {
   baseURL,
@@ -73,7 +69,21 @@ export const checkValue = async (
   if (!response) await checkValue(page, selector, value);
 };
 
+let appointments: IAppointments[] = [];
+
+if (config.appointments && config.appointments.length > 0) {
+  config.appointments.forEach(({ date, descriptions }) => {
+    appointments = appointments.concat(make(date, descriptions));
+  });
+}
+
 (async (): Promise<void> => {
+  if (appointments.length <= 0) {
+    console.log('Não há nada para apontar');
+
+    return;
+  }
+
   const browser = await puppeteer.launch(puppeteerOptions);
   const page = await browser.newPage();
 
@@ -84,9 +94,9 @@ export const checkValue = async (
 
       await page.waitForSelector('form');
 
-      await page.type('#Login', input.login);
+      await page.type('#Login', config.timesheet.login);
 
-      await page.type('#Password', input.password);
+      await page.type('#Password', config.timesheet.password);
 
       await page.click('[type="submit"]');
 

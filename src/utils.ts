@@ -1,22 +1,26 @@
-import { ISimpleAppointments } from './types';
+import config from '../config';
+import { IAppointments } from './types';
 
-export const makeAppointment = (
+const commonData = {
+  client: '8231',
+  project: '18548',
+  category: '1',
+  notMonetize: false,
+};
+
+export const make = (
   date: string,
-  description: string,
+  descriptions: string[],
   commit?: string
-): ISimpleAppointments[] => [
-  {
-    date,
-    startTime: '06:30',
-    endTime: '12:00',
-    description,
-    commit: commit || 'Na Descrição',
-  },
-  {
-    date,
-    startTime: '13:00',
-    endTime: '15:30',
-    description,
-    commit: commit || 'Na Descrição',
-  },
-];
+): IAppointments[] =>
+  config.appointmentConfig.dayTimes.map(
+    ({ start, end }, index): IAppointments => ({
+      date,
+      description:
+        descriptions.length === 1 ? descriptions[0] : descriptions[index],
+      startTime: start,
+      endTime: end,
+      commit: commit || 'Na Descrição',
+      ...commonData,
+    })
+  );
