@@ -4,7 +4,13 @@ import * as fs from 'fs';
 import { Octokit } from 'octokit';
 
 import config from '../../config';
-import { Commit, GroupedCommit, SimpleCommit } from '../types';
+import {
+  Commit,
+  DayGroupedCommit,
+  GroupedCommit,
+  SimpleCommit,
+  TimeGroupedCommit,
+} from '../types';
 
 const dateNow = (dateString: string): string => {
   const date = new Date(dateString);
@@ -20,36 +26,72 @@ const simplifyCommit = (_: Commit): SimpleCommit => ({
   commit: _.html_url,
 });
 
+const timeNumber = (time: string): number => Number(time.replace(':', ''));
+
 const groupByDate = (commits: SimpleCommit[]): GroupedCommit[] => {
-  const part: GroupedCommit[] = [];
+  const dayGroup: DayGroupedCommit[] = [];
 
   commits.forEach((item) => {
     const day = item.date.split('T')[0];
-    const time = item.date.split('T')[1].split('.')[0];
+    const time = item.date.split('T')[1].split('.')[0].slice(0, 5);
 
     let index = 0;
-    const exists = part.find(({ date }, _) => {
+    const exists = dayGroup.find(({ date }, _) => {
       index = _;
 
       return day === date.split('T')[0];
     });
 
     if (exists) {
-      part[index] = {
-        date: part[index].date,
-        description:
-          `${part[index].description}\n` +
-          ` - [${time}] ${item.description} (${item.commit})`,
+      dayGroup[index] = {
+        date: dayGroup[index].date,
+        descriptions: dayGroup[index].descriptions.concat([
+          { time, description: item.description, commit: item.commit },
+        ]),
       };
     } else {
-      part.push({
+      dayGroup.push({
         date: day,
-        description: ` - [${time}] ${item.description} (${item.commit})`,
+        descriptions: [
+          { time, description: item.description, commit: item.commit },
+        ],
       });
     }
   });
 
-  return part;
+  const dayGroups: TimeGroupedCommit[] = dayGroup.map(
+    ({ date, descriptions }) => ({
+      date,
+      descriptions: config.appointmentConfig.dayTimes.map(
+        (item, itemIndex) => ({
+          ...item,
+          descriptions: descriptions
+            .filter(
+              (d) =>
+                (timeNumber(item.start) < timeNumber(d.time) &&
+                  timeNumber(d.time) < timeNumber(item.end)) ||
+                (itemIndex === 0 &&
+                  timeNumber(d.time) < timeNumber(item.end)) ||
+                (itemIndex === config.appointmentConfig.dayTimes.length - 1 &&
+                  timeNumber(d.time) > timeNumber(item.start))
+            )
+            .map((d) => `[${d.time}] ${d.description} (${d.commit})`),
+        })
+      ),
+    })
+  );
+
+  return dayGroups.map(({ date, descriptions }) => ({
+    date,
+    description: descriptions
+      .map(
+        ({ start, end, descriptions }) =>
+          `## ${start} - ${end}\n` +
+          descriptions.map((des) => ` - ${des}`).join('\n') +
+          '\n'
+      )
+      .join('\n'),
+  }));
 };
 
 const removeMerge = (commits: SimpleCommit[]): SimpleCommit[] =>

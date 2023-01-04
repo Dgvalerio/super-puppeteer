@@ -30,6 +30,16 @@ export interface GroupedCommit {
   description: string;
 }
 
+export interface DayGroupedCommit {
+  date: string;
+  descriptions: { time: string; description: string; commit: string }[];
+}
+
+export interface TimeGroupedCommit {
+  date: string;
+  descriptions: { start: string; end: string; descriptions: string[] }[];
+}
+
 export interface ConfigurationTypes {
   timesheet: {
     // E-mail para realizar login na sua conta do timesheet oficial.
