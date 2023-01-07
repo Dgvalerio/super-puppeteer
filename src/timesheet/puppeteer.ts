@@ -121,13 +121,13 @@ if (config.appointments && config.appointments.length > 0) {
 
       return cookies;
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log('Sign In failure: ', { e });
+      console.error('Sign In failure: ', e);
 
       return [];
     }
   })();
 
+  // CREATE APPOINTMENT (ONE BY ONE)
   const create = async (index: number): Promise<boolean> => {
     const appointment = appointments[index];
 
@@ -190,6 +190,8 @@ if (config.appointments && config.appointments.length > 0) {
         await create(index + 1);
       }
     } catch (e) {
+      console.error('Create appointment', e);
+
       if ((<Error>e).message === appointmentFailedMessage) {
         try {
           await page.waitForSelector('.alert.alert-danger', waitOptions);
@@ -197,7 +199,9 @@ if (config.appointments && config.appointments.length > 0) {
           await page.evaluate(
             () => document.querySelector('.alert.alert-danger')?.textContent
           );
-        } catch (e2) {}
+        } catch (e2) {
+          console.error('Create appointment', e2);
+        }
       }
 
       return false;
