@@ -20,6 +20,7 @@ export type Commits =
 export type Commit = Commits[number];
 
 export interface SimpleCommit {
+  repo: string;
   date: string;
   description: string;
   commit: string;
@@ -32,12 +33,21 @@ export interface GroupedCommit {
 
 export interface DayGroupedCommit {
   date: string;
-  descriptions: { time: string; description: string; commit: string }[];
+  descriptions: {
+    repo: string;
+    time: string;
+    description: string;
+    commit: string;
+  }[];
 }
 
 export interface TimeGroupedCommit {
   date: string;
-  descriptions: { start: string; end: string; descriptions: string[] }[];
+  descriptions: {
+    start: string;
+    end: string;
+    descriptions: { repo: string; text: string[] }[];
+  }[];
 }
 
 export interface ConfigurationTypes {
