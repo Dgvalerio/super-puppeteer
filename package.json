@@ -1,6 +1,6 @@
 {
   "name": "super-puppeteer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "index.js",
   "repository": "git@github.com:Dgvalerio/super-puppeteer.git",
   "author": "Davi GV <al.davigvalerio@gmail.com>",
