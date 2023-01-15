@@ -77,6 +77,14 @@ export interface ConfigurationTypes {
       until?: string;
     };
   };
+  jira: {
+    // URL do JIRA
+    route: string;
+    // E-mail para realizar login na sua conta do timesheet oficial.
+    email: string;
+    // Token de acesso do JIRA
+    token: string;
+  };
   appointmentConfig: {
     // Horários que você deseja apontar (lembre de deixar pelo menos uma hora para almoço).
     dayTimes: {

@@ -18,6 +18,11 @@ const config: ConfigurationTypes = {
       },
     ],
   },
+  jira: {
+    route: 'https://luby.atlassian.net',
+    email: 'seu@email.com',
+    token: 'jira_token',
+  },
   appointmentConfig: {
     dayTimes: [
       { start: '06:30', end: '12:00' },

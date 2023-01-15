@@ -9,7 +9,8 @@
     "start:project": "mkdir markdowns && (cp config.example.ts config.ts)||(copy config.example.ts config.ts)",
     "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
-    "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts"
+    "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
+    "jira": "tsnd --respawn --transpile-only src/jira/index.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.45.0",
@@ -25,6 +26,7 @@
   },
   "dependencies": {
     "@octokit/types": "^8.0.0",
+    "axios": "^1.2.2",
     "octokit": "^2.0.10",
     "puppeteer": "^19.4.1"
   }
