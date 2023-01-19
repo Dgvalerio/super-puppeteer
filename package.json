@@ -10,7 +10,8 @@
     "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
     "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
-    "jira": "tsnd --respawn --transpile-only src/jira/index.ts"
+    "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",
+    "jira": "tsnd --transpile-only src/jira/index.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.45.0",

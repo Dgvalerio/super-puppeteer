@@ -1,7 +1,12 @@
 import axios, { AxiosError } from 'axios';
 
 import config from '../../config';
-import { IProject, Pagination } from './types';
+import {
+  IIssueDetailed,
+  IProject,
+  IProjectDetailed,
+  Pagination,
+} from './types';
 
 const api = axios.create({
   baseURL: config.jira.route,
@@ -29,10 +34,59 @@ const errorHandler = (e: AxiosError): void => {
   }
 };
 
-export const getAllProjects = async (): Promise<Pagination<IProject>> => {
+const getAllProjects = async (): Promise<Pagination<IProject>> => {
   try {
     const response = await api.get<Pagination<IProject>>(
       `/rest/api/3/project/search`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+const getProject = async (
+  id: number | string
+): Promise<Pagination<IProjectDetailed>> => {
+  try {
+    const response = await api.get<Pagination<IProjectDetailed>>(
+      `/rest/api/3/project/${id}`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+export const project = {
+  getOne: getProject,
+  getAll: getAllProjects,
+};
+
+export const getIssue = async (
+  issueIdOrKey: string
+): Promise<IIssueDetailed> => {
+  try {
+    const response = await api.get<IIssueDetailed>(
+      `/rest/api/3/issue/${issueIdOrKey}`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+export const issue = {
+  getOne: getIssue,
+};
+
+export const getDashboard = async (): Promise<IIssueDetailed> => {
+  try {
+    const response = await api.get<IIssueDetailed>(
+      `/rest/api/3/dashboard/search`
     );
 
     return response.data;
