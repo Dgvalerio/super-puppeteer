@@ -84,6 +84,8 @@ export interface ConfigurationTypes {
     email: string;
     // Token de acesso do JIRA
     token: string;
+    // Key do projeto
+    projectKey?: string;
   };
   appointmentConfig: {
     // Horários que você deseja apontar (lembre de deixar pelo menos uma hora para almoço).

@@ -5,6 +5,9 @@ import {
   IIssueDetailed,
   IProject,
   IProjectDetailed,
+  IProjectFeature,
+  ISearch,
+  ISearchResults,
   Pagination,
 } from './types';
 
@@ -60,9 +63,54 @@ const getProject = async (
   }
 };
 
+const getProjectFeatures = async (
+  id: number | string
+): Promise<IProjectFeature> => {
+  try {
+    const response = await api.get<IProjectFeature>(
+      `/rest/api/3/project/${id}/features`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
 export const project = {
   getOne: getProject,
   getAll: getAllProjects,
+  getFeatures: getProjectFeatures,
+};
+
+const searchIssues = async ({
+  orderBy,
+  startAt,
+  maxResults,
+  ...params
+}: ISearch): Promise<ISearchResults> => {
+  let search = ``;
+
+  const jql = Object.entries(params)
+    .map(([field, value]) => `${field} = ${value}`)
+    .join(' AND ');
+
+  const order = `ORDER BY ${orderBy.field} ${orderBy.order}`;
+
+  search += [jql, order].join(' ');
+
+  if (startAt || startAt === 0) search += `&startAt=${startAt}`;
+  if (maxResults) search += `&maxResults=${maxResults}`;
+
+  try {
+    const response = await api.get<ISearchResults>(
+      `/rest/api/3/search?jql=${search}`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
 };
 
 export const getIssue = async (
@@ -80,6 +128,7 @@ export const getIssue = async (
 };
 
 export const issue = {
+  search: searchIssues,
   getOne: getIssue,
 };
 

@@ -11,6 +11,7 @@
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
     "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
     "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",
+    "jira:get-project": "tsnd --transpile-only src/jira/get-project.ts",
     "jira": "tsnd --transpile-only src/jira/index.ts"
   },
   "devDependencies": {
