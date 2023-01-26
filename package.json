@@ -12,7 +12,8 @@
     "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
     "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",
     "jira:get-project": "tsnd --transpile-only src/jira/get-project.ts",
-    "jira:get-detailed-issues": "tsnd --transpile-only src/jira/get-detailed-issues.ts"
+    "jira:get-detailed-issues": "tsnd --transpile-only src/jira/get-detailed-issues.ts",
+    "jira:get-issues": "tsnd --transpile-only src/jira/get-issues.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.45.0",

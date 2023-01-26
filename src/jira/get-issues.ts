@@ -106,32 +106,91 @@ const simplifyIssue = ({ key, fields }: IIssueBean): ISimpleIssue => {
   };
 };
 
-const joinInMD = (issues: ISimpleIssue[]): string => {
-  const res = issues.map(
-    (issue) => `
-# ${issue.id}: ${issue.title}\n
-**Priority:** ${issue.priority.name}\\
-**Status:** ${issue.status.name}\\
-**Resolution:** ${issue.resolution?.name}
+interface ISimpleIssueGrouped {
+  date: ISimpleIssue['updated'];
+  issues: ISimpleIssue[];
+}
 
+const sortByDate = (a: ISimpleIssueGrouped, b: ISimpleIssueGrouped): number => {
+  const n = (t: string): number => Number(t.replace(/\D/g, ''));
+
+  if (n(a.date) > n(b.date)) return 1;
+  if (n(a.date) === n(b.date)) return 0;
+  if (n(a.date) < n(b.date)) return -1;
+};
+
+const groupByDate = (issues: ISimpleIssue[]): ISimpleIssueGrouped[] => {
+  const aux: Record<
+    ISimpleIssueGrouped['date'],
+    ISimpleIssueGrouped['issues']
+  > = {};
+
+  issues.forEach((issue) => {
+    const day = issue.updated.split('T')[0];
+
+    aux[day] = [...(aux[day] || []), issue];
+  });
+
+  const list: ISimpleIssueGrouped[] = Object.entries(aux).map(([d, i]) => ({
+    date: d,
+    issues: i,
+  }));
+
+  return list.sort(sortByDate);
+};
+
+const joinInMD = (issues: ISimpleIssueGrouped[]): string => {
+  const res = issues.map(({ issues, date }) => {
+    const title = `# ${date}`;
+
+    const texts = issues.map((issue) => {
+      const subTitle = issue.parentSummary && `### ${issue.parentSummary}\n`;
+      const subSubTitle =
+        (issue.parentSummary ? '####' : '###') +
+        ` ${issue.id}: ${issue.summary}\n`;
+      const priority = `**Priority:** ${issue.priority.name}\\\n`;
+      const status = `**Status:** ${issue.status.name}\\\n`;
+      const resolution =
+        issue.resolution?.name && `**Resolution:** ${issue.resolution?.name}\n`;
+
+      const dates = `
 ## Dates
 
-| Info                          | When                         |
-|-------------------------------|------------------------------|
-| **created**                   | ${issue.created} |
-| **updated**                   | ${issue.updated} |
-${
-  issue.resolutionDate &&
-  `| **resolutionDate**            | ${issue.resolutionDate} |`
-}
-| **statusCategoryChangeDate**  | ${issue.statusCategoryChangeDate} |
+| Info           | When                         |
+|----------------|------------------------------|
+| **created**    | ${issue.created} |
+| **updated**    | ${issue.updated} |
+`;
+      const resolutionDate =
+        issue.resolutionDate &&
+        `| **resolution** | ${issue.resolutionDate} |\n`;
 
-## Description
-${issue.description}
-`
-  );
+      return [
+        subTitle,
+        subSubTitle,
+        priority,
+        status,
+        resolution,
+        dates,
+        resolutionDate,
+      ].join('');
+    });
+
+    return `${title}\n${texts.join('\n')}`;
+  });
 
   return res.join('\n');
+};
+
+const writeMarkdown = (issues: ISimpleIssueGrouped[]): void => {
+  // write markdown
+  const name = new Date().toISOString().replace(/[:.T]/gm, '-');
+  const filename = `markdowns/jira/${name}.md`;
+
+  fs.writeFileSync(filename, joinInMD(issues));
+
+  // eslint-disable-next-line no-console
+  console.log(filename + ' ok');
 };
 
 (async (): Promise<void> => {
@@ -151,12 +210,7 @@ ${issue.description}
     .map(simplifyIssue)
     .sort(sortByID);
 
-  // write markdown
-  const name = new Date().toISOString().replace(/[:.T]/gm, '-');
-  const filename = `markdowns/jira/detailed-${name}.md`;
+  const issuesGrouped: ISimpleIssueGrouped[] = groupByDate(simpleIssues);
 
-  fs.writeFileSync(filename, joinInMD(simpleIssues));
-
-  // eslint-disable-next-line no-console
-  console.log(filename + ' ok');
+  writeMarkdown(issuesGrouped);
 })();

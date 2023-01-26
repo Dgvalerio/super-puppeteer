@@ -76,7 +76,7 @@ interface IAttachment {
   id: string;
   filename: string;
   author: IUserDetails;
-  created: Date;
+  created: string; // Date;
   size: number;
   mimeType: 'image/png';
   content: string;
@@ -100,8 +100,8 @@ interface ICommentItem {
     }[];
   };
   updateAuthor: IUserDetails;
-  created: Date;
-  updated: Date;
+  created: string; // Date;
+  updated: string; // Date;
   jsdPublic: boolean;
 }
 
@@ -125,9 +125,9 @@ interface IWorkLogItem {
       content: { type: 'text'; text: string }[];
     }[];
   };
-  created: Date;
-  updated: Date;
-  started: Date;
+  created: string; // Date;
+  updated: string; // Date;
+  started: string; // Date;
   timeSpent: string;
   timeSpentSeconds: number;
   id: string;
@@ -163,7 +163,9 @@ export interface ISimpleIssue {
   resolutionDate: IIssueBean['fields']['resolutiondate'];
   status: IIssueBean['fields']['status'];
   statusCategoryChangeDate: IIssueBean['fields']['statuscategorychangedate'];
-  title: IIssueBean['fields']['summary'];
+  title: string;
+  summary: IIssueBean['fields']['summary'];
+  parentSummary?: string;
   updated: IIssueBean['fields']['updated'];
 }
 
@@ -194,7 +196,7 @@ export interface IContentType {
 }
 
 interface IIssueFields {
-  statuscategorychangedate: Date;
+  statuscategorychangedate: string; // Date;
   parent: {
     id: string;
     key: string;
@@ -231,7 +233,7 @@ interface IIssueFields {
     description: string;
     name: string;
   } | null;
-  lastViewed: Date;
+  lastViewed: string; // Date;
   priority: {
     self: string;
     iconUrl: string;
@@ -294,8 +296,8 @@ interface IIssueFields {
     watchCount: number;
     isWatching: boolean;
   };
-  created: Date;
-  updated: Date;
+  created: string; // Date;
+  updated: string; // Date;
   timeoriginalestimate: null;
   description: {
     version: number;
