@@ -153,6 +153,32 @@ export interface IIssueType {
   hierarchyLevel: number;
 }
 
+export interface IContentType {
+  type: 'mediaSingle' | 'paragraph' | 'bulletList' | 'rule';
+  attrs: { layout: 'align-start' };
+  content: (
+    | {
+        type: 'media';
+        attrs: {
+          id: string;
+          type: 'file';
+          collection: string;
+          width: number;
+          height: number;
+        };
+      }
+    | {
+        type: 'text';
+        text: string;
+        marks: { type: 'strong' }[];
+      }
+    | {
+        type: 'listItem';
+        content: IContentType[];
+      }
+  )[];
+}
+
 interface IIssueFields {
   statuscategorychangedate: Date;
   parent: {
@@ -190,7 +216,7 @@ interface IIssueFields {
     id: string;
     description: string;
     name: string;
-  };
+  } | null;
   lastViewed: Date;
   priority: {
     self: string;
@@ -243,7 +269,7 @@ interface IIssueFields {
   timespent: number;
   project: IProjectSimplified;
   aggregatetimespent: number;
-  resolutiondate: Date;
+  resolutiondate: Date | null;
   workratio: number;
   issuerestriction: {
     issuerestrictions: unknown;
@@ -260,26 +286,7 @@ interface IIssueFields {
   description: {
     version: number;
     type: 'doc';
-    content?: {
-      type: 'mediaSingle';
-      attrs: { layout: 'align-start' };
-      content: (
-        | {
-            type: 'media';
-            attrs: {
-              id: string;
-              type: 'file';
-              collection: string;
-              width: number;
-              height: number;
-            };
-          }
-        | {
-            type: 'text';
-            text: string;
-          }
-      )[];
-    }[];
+    content?: IContentType[];
   };
   timetracking: {
     remainingEstimate: string;
@@ -485,7 +492,7 @@ interface IIncludedFields {
   excluded: string[];
 }
 
-interface IIssueBean {
+export interface IIssueBean {
   expand: string;
   id: string;
   self: string;
@@ -503,16 +510,51 @@ interface IIssueBean {
   fields: Partial<IIssueFields>;
 }
 
-export interface ISearchResults {
+// View in https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-get
+export interface ISearchRequest {
+  // The JQL that defines the search.
+  jql: string;
+  // The index of the first item to return in a page of results (page offset).
   startAt: number;
+  // The maximum number of items to return per page.
   maxResults: number;
-  validateQuery: 'strict' | 'warn' | 'none';
+  // Determines how to validate the JQL query and treat the validation results.
+  validateQuery?: 'strict' | 'warn' | 'none';
+  // A list of fields to return for each issue, use it to retrieve a subset of fields.
+  fields?: Array<string>;
+  // Use expand to include additional information about issues in the response.
+  expand?:
+    | 'renderedFields'
+    | 'names'
+    | 'schema'
+    | 'transitions'
+    | 'operations'
+    | 'editmeta'
+    | 'changelog'
+    | 'versionedRepresentations';
+  // A list of issue property keys for issue properties to include in the results.
+  properties?: Array<string>;
+  // Reference fields by their key (rather than ID). Default false.
+  fieldsByKeys?: boolean;
+}
+
+export interface ISearchResults {
+  // Expand options that include additional search result details in the response.
   expand: string;
+  // The index of the first item returned on the page.
+  startAt: number;
+  // The maximum number of results that could be on the page.
+  maxResults: number;
+  // The number of results on the page.
   total: number;
+  // The list of issues found by the search.
   issues: IIssueBean[];
+  // Any warnings related to the JQL query.
   warningMessages: string[];
+  // The ID and name of each field in the search results.
   names: object;
-  schema: object;
+  // The schema describing the field types in the search results.
+  schema: IJsonTypeBean;
 }
 
 export interface ISearch {

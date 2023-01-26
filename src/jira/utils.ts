@@ -7,6 +7,7 @@ import {
   IProjectDetailed,
   IProjectFeature,
   ISearch,
+  ISearchRequest,
   ISearchResults,
   Pagination,
 } from './types';
@@ -89,23 +90,22 @@ const searchIssues = async ({
   maxResults,
   ...params
 }: ISearch): Promise<ISearchResults> => {
-  let search = ``;
-
-  const jql = Object.entries(params)
+  let jql = Object.entries(params)
     .map(([field, value]) => `${field} = ${value}`)
     .join(' AND ');
 
   const order = `ORDER BY ${orderBy.field} ${orderBy.order}`;
 
-  search += [jql, order].join(' ');
+  jql = [jql, order].join(' ');
 
-  if (startAt || startAt === 0) search += `&startAt=${startAt}`;
-  if (maxResults) search += `&maxResults=${maxResults}`;
+  const data: ISearchRequest = {
+    jql,
+    maxResults,
+    startAt,
+  };
 
   try {
-    const response = await api.get<ISearchResults>(
-      `/rest/api/3/search?jql=${search}`
-    );
+    const response = await api.post<ISearchResults>(`/rest/api/3/search`, data);
 
     return response.data;
   } catch (e) {
