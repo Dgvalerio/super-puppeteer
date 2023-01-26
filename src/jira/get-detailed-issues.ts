@@ -1,24 +1,10 @@
 import * as fs from 'fs';
 
 import config from '../../config';
-import { IContentType, IIssueBean } from './types';
+import { IContentType, IIssueBean, ISimpleIssue } from './types';
 import { issue } from './utils';
 
 const key = config.jira.projectKey;
-
-interface ISimpleIssue {
-  id: IIssueBean['key'];
-  created: IIssueBean['fields']['created'];
-  description: string;
-  issueType: IIssueBean['fields']['issuetype'];
-  priority: IIssueBean['fields']['priority'];
-  resolution: IIssueBean['fields']['resolution'];
-  resolutionDate: IIssueBean['fields']['resolutiondate'];
-  status: IIssueBean['fields']['status'];
-  statusCategoryChangeDate: IIssueBean['fields']['statuscategorychangedate'];
-  title: IIssueBean['fields']['summary'];
-  updated: IIssueBean['fields']['updated'];
-}
 
 const sortByID = (a: ISimpleIssue, b: ISimpleIssue): number => {
   const n = (t: string): number => Number(t.replace(/\D/g, ''));
@@ -64,7 +50,7 @@ const ifParagraph = (
 
 const simplifyIssue = ({ key, fields }: IIssueBean): ISimpleIssue => {
   const id = key;
-  const parent = fields?.parent?.fields?.summary || '';
+  const parent = fields?.parent?.fields?.summary;
   const title = fields.summary;
 
   const content = fields.description?.content || [];
@@ -113,7 +99,7 @@ const simplifyIssue = ({ key, fields }: IIssueBean): ISimpleIssue => {
     resolutionDate: fields.resolutiondate,
     status: fields.status,
     statusCategoryChangeDate: fields.statuscategorychangedate,
-    title: [parent, title].join(' > '),
+    title: parent ? `${parent} > ${title}` : title,
     updated: fields.updated,
   };
 };

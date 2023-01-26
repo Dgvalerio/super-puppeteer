@@ -7,6 +7,7 @@ const config: ConfigurationTypes = {
     password: 'sua_senha',
   },
   github: {
+    // https://github.com/settings/tokens/new?scopes=user,repo&description=to-brinks
     token: 'github_token',
     repositories: [
       {
@@ -21,7 +22,9 @@ const config: ConfigurationTypes = {
   jira: {
     route: 'https://luby.atlassian.net',
     email: 'seu@email.com',
+    // // https://id.atlassian.com/manage-profile/security/api-tokens
     token: 'jira_token',
+    projectKey: 'PM',
   },
   appointmentConfig: {
     dayTimes: [

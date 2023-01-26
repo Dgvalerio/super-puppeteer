@@ -153,6 +153,20 @@ export interface IIssueType {
   hierarchyLevel: number;
 }
 
+export interface ISimpleIssue {
+  id: IIssueBean['key'];
+  created: IIssueBean['fields']['created'];
+  description: string;
+  issueType: IIssueBean['fields']['issuetype'];
+  priority: IIssueBean['fields']['priority'];
+  resolution: IIssueBean['fields']['resolution'];
+  resolutionDate: IIssueBean['fields']['resolutiondate'];
+  status: IIssueBean['fields']['status'];
+  statusCategoryChangeDate: IIssueBean['fields']['statuscategorychangedate'];
+  title: IIssueBean['fields']['summary'];
+  updated: IIssueBean['fields']['updated'];
+}
+
 export interface IContentType {
   type: 'mediaSingle' | 'paragraph' | 'bulletList' | 'rule';
   attrs: { layout: 'align-start' };
