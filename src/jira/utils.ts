@@ -1,7 +1,16 @@
 import axios, { AxiosError } from 'axios';
 
 import config from '../../config';
-import { IProject, Pagination } from './types';
+import {
+  IIssueDetailed,
+  IProject,
+  IProjectDetailed,
+  IProjectFeature,
+  ISearch,
+  ISearchRequest,
+  ISearchResults,
+  Pagination,
+} from './types';
 
 const api = axios.create({
   baseURL: config.jira.route,
@@ -29,10 +38,104 @@ const errorHandler = (e: AxiosError): void => {
   }
 };
 
-export const getAllProjects = async (): Promise<Pagination<IProject>> => {
+const getAllProjects = async (): Promise<Pagination<IProject>> => {
   try {
     const response = await api.get<Pagination<IProject>>(
       `/rest/api/3/project/search`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+const getProject = async (
+  id: number | string
+): Promise<Pagination<IProjectDetailed>> => {
+  try {
+    const response = await api.get<Pagination<IProjectDetailed>>(
+      `/rest/api/3/project/${id}`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+const getProjectFeatures = async (
+  id: number | string
+): Promise<IProjectFeature> => {
+  try {
+    const response = await api.get<IProjectFeature>(
+      `/rest/api/3/project/${id}/features`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+export const project = {
+  getOne: getProject,
+  getAll: getAllProjects,
+  getFeatures: getProjectFeatures,
+};
+
+const searchIssues = async ({
+  orderBy,
+  startAt,
+  maxResults,
+  ...params
+}: ISearch): Promise<ISearchResults> => {
+  let jql = Object.entries(params)
+    .map(([field, value]) => `${field} = ${value}`)
+    .join(' AND ');
+
+  const order = `ORDER BY ${orderBy.field} ${orderBy.order}`;
+
+  jql = [jql, order].join(' ');
+
+  const data: ISearchRequest = {
+    jql,
+    maxResults,
+    startAt,
+  };
+
+  try {
+    const response = await api.post<ISearchResults>(`/rest/api/3/search`, data);
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+export const getIssue = async (
+  issueIdOrKey: string
+): Promise<IIssueDetailed> => {
+  try {
+    const response = await api.get<IIssueDetailed>(
+      `/rest/api/3/issue/${issueIdOrKey}`
+    );
+
+    return response.data;
+  } catch (e) {
+    errorHandler(e);
+  }
+};
+
+export const issue = {
+  search: searchIssues,
+  getOne: getIssue,
+};
+
+export const getDashboard = async (): Promise<IIssueDetailed> => {
+  try {
+    const response = await api.get<IIssueDetailed>(
+      `/rest/api/3/dashboard/search`
     );
 
     return response.data;
