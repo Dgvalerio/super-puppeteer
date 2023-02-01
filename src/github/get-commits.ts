@@ -1,6 +1,8 @@
 import { Endpoints } from '@octokit/types';
+import { translate } from '@vitalets/google-translate-api';
 
 import * as fs from 'fs';
+import createHttpProxyAgent from 'http-proxy-agent';
 import { Octokit } from 'octokit';
 
 import config from '../../config';
@@ -22,15 +24,13 @@ const dateNow = (dateString: string): string => {
   return date.toISOString();
 };
 
-const simplifyCommit = (repo: string, _: Commit): SimpleCommit =>
-  //
+const simplifyCommit = (repo: string, _: Commit): SimpleCommit => ({
+  repo,
+  date: dateNow(_.commit.committer.date),
+  description: _.commit.message,
+  commit: _.html_url,
+});
 
-  ({
-    repo,
-    date: dateNow(_.commit.committer.date),
-    description: _.commit.message,
-    commit: _.html_url,
-  });
 const timeNumber = (time: string): number => Number(time.replace(':', ''));
 
 const timeFilter =
@@ -163,45 +163,51 @@ const joinInMD = (commits: GroupedCommit[]): string => {
     email = response.data.email;
   }
 
-  const promise = config.github.repositories.map(
-    async (repo): Promise<SimpleCommit[]> => {
-      let searchConfig: Endpoints['GET /repos/{owner}/{repo}/commits']['parameters'] =
-        {
-          owner: 'lubysoftware',
-          repo: repo.name,
-          author: email,
-          sha: repo.branch_sha,
-          per_page: 100,
-        };
+  const finalResponse: SimpleCommit[][] = [];
 
-      if (config.github.when) {
-        if (config.github.when.until)
-          searchConfig = { ...searchConfig, until: config.github.when.until };
-        if (config.github.when.since)
-          searchConfig = { ...searchConfig, since: config.github.when.since };
-      }
+  for (const repo of config.github.repositories) {
+    let searchConfig: Endpoints['GET /repos/{owner}/{repo}/commits']['parameters'] =
+      {
+        owner: 'lubysoftware',
+        repo: repo.name,
+        author: email,
+        sha: repo.branch_sha,
+        per_page: 100,
+      };
 
-      const response = await octokit.request(
-        'GET /repos/{owner}/{repo}/commits',
-        searchConfig
+    if (config.github.when) {
+      if (config.github.when.until)
+        searchConfig = { ...searchConfig, until: config.github.when.until };
+      if (config.github.when.since)
+        searchConfig = { ...searchConfig, since: config.github.when.since };
+    }
+
+    const response = await octokit.request(
+      'GET /repos/{owner}/{repo}/commits',
+      searchConfig
+    );
+
+    const simplified: SimpleCommit[] = [];
+
+    for (const data of response.data) {
+      data.commit.message = data.commit.message.replace(
+        /feat|fix|docs|style|refactor|chore|test|merge/gim,
+        (matched) => conventionalCommitsHashmap[matched]
       );
 
-      const simplified: SimpleCommit[] = response.data.map((data) => {
-        data.commit.message = data.commit.message.replace(
-          /feat|fix|docs|style|refactor|chore|test|merge/gim,
-          (matched) => conventionalCommitsHashmap[matched]
-        );
-
-        return simplifyCommit(repo.name, data);
+      const { text } = await translate(data.commit.message, {
+        to: 'pt-br',
       });
 
-      return removeMerge(simplified);
+      data.commit.message = text;
+
+      simplified.push(simplifyCommit(repo.name, data));
     }
-  );
 
-  const response = await Promise.all(promise);
+    finalResponse.push(removeMerge(simplified));
+  }
 
-  const joined = joinLists(response);
+  const joined = joinLists(finalResponse);
 
   // sort by date
   joined.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
