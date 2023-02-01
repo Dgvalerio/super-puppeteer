@@ -2,8 +2,8 @@ import config from '../config';
 import { IAppointments } from './types';
 
 const commonData = {
-  client: '8231',
-  project: '18548',
+  client: '15',
+  project: '50',
   category: '1',
   notMonetize: false,
 };
@@ -35,3 +35,9 @@ export const conventionalCommitsHashmap = {
   test: 'Testes automatizados',
   merge: 'Review de Pull Request',
 };
+
+export function reformatDate(dateStr: string) {
+  const dArr = dateStr.split('-'); // ex input: "2010-01-18"
+
+  return dArr[2] + '/' + dArr[1] + '/' + dArr[0]; // ex output: "18/01/10"
+}
