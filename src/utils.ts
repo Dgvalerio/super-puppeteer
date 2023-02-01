@@ -24,3 +24,14 @@ export const make = (
       ...commonData,
     })
   );
+
+export const conventionalCommitsHashmap = {
+  feat: 'Desenvolvimento de feature',
+  fix: 'Correção/manutenção de bug',
+  docs: 'Documentação',
+  style: 'Formatação de estilos',
+  refactor: 'Refatoração',
+  chore: 'Outras alterações',
+  test: 'Testes automatizados',
+  merge: 'Review de Pull Request',
+};

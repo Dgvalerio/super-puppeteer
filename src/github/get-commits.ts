@@ -12,6 +12,7 @@ import {
   SimpleCommit,
   TimeGroupedCommit,
 } from '../types';
+import { conventionalCommitsHashmap } from '../utils';
 
 const dateNow = (dateString: string): string => {
   const date = new Date(dateString);
@@ -21,13 +22,15 @@ const dateNow = (dateString: string): string => {
   return date.toISOString();
 };
 
-const simplifyCommit = (repo: string, _: Commit): SimpleCommit => ({
-  repo,
-  date: dateNow(_.commit.committer.date),
-  description: _.commit.message,
-  commit: _.html_url,
-});
+const simplifyCommit = (repo: string, _: Commit): SimpleCommit =>
+  //
 
+  ({
+    repo,
+    date: dateNow(_.commit.committer.date),
+    description: _.commit.message,
+    commit: _.html_url,
+  });
 const timeNumber = (time: string): number => Number(time.replace(':', ''));
 
 const timeFilter =
@@ -183,9 +186,14 @@ const joinInMD = (commits: GroupedCommit[]): string => {
         searchConfig
       );
 
-      const simplified: SimpleCommit[] = response.data.map((data) =>
-        simplifyCommit(repo.name, data)
-      );
+      const simplified: SimpleCommit[] = response.data.map((data) => {
+        data.commit.message = data.commit.message.replace(
+          /feat|fix|docs|style|refactor|chore|test|merge/gim,
+          (matched) => conventionalCommitsHashmap[matched]
+        );
+
+        return simplifyCommit(repo.name, data);
+      });
 
       return removeMerge(simplified);
     }
