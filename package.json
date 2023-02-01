@@ -29,7 +29,9 @@
   },
   "dependencies": {
     "@octokit/types": "^8.0.0",
+    "@vitalets/google-translate-api": "^9.1.0",
     "axios": "^1.2.2",
+    "http-proxy-agent": "^5.0.0",
     "octokit": "^2.0.10",
     "puppeteer": "^19.4.1"
   }
