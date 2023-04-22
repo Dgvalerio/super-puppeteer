@@ -19,6 +19,9 @@ export type Commits =
   Endpoints['GET /repos/{owner}/{repo}/commits']['response']['data'];
 export type Commit = Commits[number];
 
+export type Repositories = Endpoints['GET /user/repos']['response']['data'];
+export type Repository = Repositories[number];
+
 export interface SimpleCommit {
   repo: string;
   date: string;

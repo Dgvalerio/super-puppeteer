@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start:project": "mkdir markdowns && (cd markdowns && mkdir jira && cd ..) && ((cp config.example.ts config.ts)||(copy config.example.ts config.ts))",
+    "git:get-repositories": "tsnd --transpile-only src/github/get-repositories.ts",
     "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
     "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
