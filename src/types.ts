@@ -1,5 +1,28 @@
 import { Endpoints } from '@octokit/types';
 
+export namespace Timesheet {
+  export interface Client {
+    id: string;
+    title: string;
+    projects: Project[];
+  }
+
+  export interface Project {
+    Id: number;
+    Name: string;
+    StartDate: string;
+    EndDate: string;
+    IdCustomer: number;
+    categories: Category[];
+  }
+
+  export interface Category {
+    Id: number;
+    Name: string;
+    IdProject: number;
+  }
+}
+
 export interface IAppointments extends ISimpleAppointments {
   client: string;
   project: string;

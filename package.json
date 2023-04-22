@@ -11,12 +11,14 @@
     "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
     "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
+    "sheet:get-clients": "tsnd --transpile-only src/timesheet/get-clients.ts",
     "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",
     "jira:get-project": "tsnd --transpile-only src/jira/get-project.ts",
     "jira:get-detailed-issues": "tsnd --transpile-only src/jira/get-detailed-issues.ts",
     "jira:get-issues": "tsnd --transpile-only src/jira/get-issues.ts"
   },
   "devDependencies": {
+    "@types/tough-cookie": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "eslint": "^8.28.0",
@@ -31,7 +33,9 @@
   "dependencies": {
     "@octokit/types": "^8.0.0",
     "axios": "^1.2.2",
+    "axios-cookiejar-support": "^4.0.6",
     "octokit": "^2.0.10",
-    "puppeteer": "^19.4.1"
+    "puppeteer": "^19.4.1",
+    "tough-cookie": "^4.1.2"
   }
 }
