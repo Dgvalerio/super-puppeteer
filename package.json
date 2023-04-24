@@ -12,6 +12,7 @@
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
     "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
     "sheet:get-clients": "tsnd --transpile-only src/timesheet/get-clients.ts",
+    "sheet:send-appointments": "tsnd --transpile-only src/timesheet/send-appointments.ts",
     "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",
     "jira:get-project": "tsnd --transpile-only src/jira/get-project.ts",
     "jira:get-detailed-issues": "tsnd --transpile-only src/jira/get-detailed-issues.ts",

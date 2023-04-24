@@ -21,6 +21,23 @@ export namespace Timesheet {
     Name: string;
     IdProject: number;
   }
+
+  export interface Appointment {
+    __RequestVerificationToken: string;
+    Id: string;
+    IdCustomer: string;
+    IdProject: string;
+    IdCategory: string;
+    // No formado dd/MM/yyyy
+    InformedDate: string;
+    // No formato hh:mm
+    StartTime: string;
+    // No formato hh:mm
+    EndTime: string;
+    NotMonetize: string;
+    CommitRepository: string;
+    Description: string;
+  }
 }
 
 export interface IAppointments extends ISimpleAppointments {
