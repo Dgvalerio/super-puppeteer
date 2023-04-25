@@ -1,5 +1,20 @@
 import { Endpoints } from '@octokit/types';
 
+export interface SimpleAppointment {
+  client: string;
+  project: string;
+  category: string;
+  // No formado dd/MM/yyyy
+  date: string;
+  // No formato hh:mm
+  startTime: string;
+  // No formato hh:mm
+  endTime: string;
+  notMonetize?: boolean;
+  commitLink?: string;
+  description: string;
+}
+
 export namespace Timesheet {
   export interface Client {
     id: string;
@@ -139,8 +154,6 @@ export interface ConfigurationTypes {
       end: string;
     }[];
   };
-  appointments?: {
-    date: string;
-    descriptions: string[];
-  }[];
+  appointmentsDefaults: Partial<SimpleAppointment>;
+  appointments: Partial<SimpleAppointment>[];
 }

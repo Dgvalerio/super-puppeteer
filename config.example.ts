@@ -32,6 +32,17 @@ const config: ConfigurationTypes = {
       { start: '13:00', end: '15:30' },
     ],
   },
+  // Client Luby, Project Luby - Ociosidade, Categoria Treinamento
+  appointmentsDefaults: { client: '15', project: '15289', category: '1021' },
+  appointments: [
+    {
+      date: '11/04/2023',
+      startTime: '06:30',
+      endTime: '12:00',
+      description:
+        'Estudando Typescript, NestJS, GraphQL, Prisma e a API do GitHub.',
+    },
+  ],
 };
 
 export default config;

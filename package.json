@@ -10,7 +10,6 @@
     "git:get-repositories": "tsnd --transpile-only src/github/get-repositories.ts",
     "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
-    "pup:send-appointments": "tsnd --transpile-only src/timesheet/puppeteer.ts",
     "sheet:get-clients": "tsnd --transpile-only src/timesheet/get-clients.ts",
     "sheet:send-appointments": "tsnd --transpile-only src/timesheet/send-appointments.ts",
     "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",
@@ -36,7 +35,6 @@
     "axios": "^1.2.2",
     "axios-cookiejar-support": "^4.0.6",
     "octokit": "^2.0.10",
-    "puppeteer": "^19.4.1",
     "tough-cookie": "^4.1.2"
   }
 }

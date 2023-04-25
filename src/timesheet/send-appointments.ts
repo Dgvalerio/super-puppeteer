@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { Cookie } from 'tough-cookie';
 
-import { Timesheet } from '../types';
+import config from '../../config';
+import { SimpleAppointment, Timesheet } from '../types';
 import { axiosConfig, loadCookies } from '../utils';
 
 const make = (
@@ -18,28 +19,13 @@ const make = (
   return `${values}------WebKitFormBoundary${WebKitFormBoundary}--\r\n`;
 };
 
-interface Appointment {
-  client: string;
-  project: string;
-  category: string;
-  // No formado dd/MM/yyyy
-  date: string;
-  // No formato hh:mm
-  startTime: string;
-  // No formato hh:mm
-  endTime: string;
-  notMonetize?: boolean;
-  commitLink?: string;
-  description: string;
-}
-
-interface AppointmentResult extends Appointment {
+interface AppointmentResult extends SimpleAppointment {
   success: boolean;
   errorMessage?: string;
 }
 
 const appointmentParse = (
-  data: Appointment
+  data: SimpleAppointment
 ): Omit<Timesheet.Appointment, '__RequestVerificationToken'> => ({
   Id: '0',
   IdCustomer: data.client,
@@ -54,8 +40,8 @@ const appointmentParse = (
 });
 
 const create = async (
-  { cookies, ...defaults }: Partial<Appointment> & { cookies: Cookie[] },
-  appointments: Partial<Appointment>[]
+  { cookies, ...defaults }: Partial<SimpleAppointment> & { cookies: Cookie[] },
+  appointments: Partial<SimpleAppointment>[]
 ): Promise<AppointmentResult[]> => {
   try {
     const response = await axios.get('/Worksheet/Read', axiosConfig(cookies));
@@ -76,7 +62,7 @@ const create = async (
         const completeAppointment = {
           ...defaults,
           ...appointment,
-        } as Appointment;
+        } as SimpleAppointment;
 
         const { data } = await axios.post(
           'https://luby-timesheet.azurewebsites.net/Worksheet/Update',
@@ -126,155 +112,15 @@ const create = async (
 };
 
 (async (): Promise<void> => {
+  if (config.appointments.length <= 0) {
+    return console.log('Não há nada para apontar');
+  }
+
   const cookies = await loadCookies();
 
   const result = await create(
-    { cookies, client: '15', project: '15289', category: '1021' },
-    [
-      {
-        client: '8231',
-        project: '18548',
-        category: '1',
-        commitLink: 'Na descrição.',
-        date: '06/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description: `
-Participando da Sprint Planning
-
-Em "multi-fit-app":
-- Correção/manutenção de bug em "choose-activity": corrigir ortografia de erro de mensagem (https://github.com/lubysoftware/multi-fit-app/commit/2c841980e2cb32cc0206399e2b2324f448a1ac4a);
-`,
-      },
-      {
-        client: '8231',
-        project: '18548',
-        category: '1',
-        commitLink: 'Na descrição.',
-        date: '06/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description: `Em "multi-fit-app":
-- Correção/manutenção de bug em "choose-activity": corrigir ortografia de erro de mensagem (https://github.com/lubysoftware/multi-fit-app/commit/2c841980e2cb32cc0206399e2b2324f448a1ac4a);
-- Correção/manutenção de bug em "dashboard": reorganizar ordem de importação (https://github.com/lubysoftware/multi-fit-app/commit/5d2f2ae326b3a496b4be68c44310927e89a7f0b5);
-- Desenvolvimento de feature em "activity": adicionar animação ao pressionar o botão stop no resumo da atividade (https://github.com/lubysoftware/multi-fit-app/commit/a5d52e985639725905b4549093b399611fd6b244).`,
-      },
-      {
-        date: '11/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description:
-          'Estudando Typescript, NestJS, GraphQL, Prisma e a API do GitHub.',
-      },
-      {
-        date: '11/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description:
-          'Estudando Typescript, NestJS, GraphQL, Prisma e a API do GitHub.',
-      },
-      {
-        date: '12/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description:
-          'Estudando Typescript, NestJS, GraphQL, Prisma e a API do GitHub.',
-      },
-      {
-        date: '12/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description:
-          'Estudando Typescript, NestJS, GraphQL, Prisma e a API do GitHub.',
-      },
-      {
-        date: '14/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description:
-          'Estudando Typescript, NestJS, GraphQL, Prisma e a API do GitHub.',
-      },
-      {
-        date: '14/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description:
-          'Estudando Typescript, NextJS, GraphQL, Prisma e a API do GitHub.',
-      },
-      {
-        client: '8231',
-        project: '18548',
-        category: '1',
-        commitLink: 'Na descrição.',
-        date: '17/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description: `Em "multi-fit-app", corrigindo layout do dashboard:
-- Correção/manutenção de bug em "choose-activity": corrigir ortografia de erro de mensagem (https://github.com/lubysoftware/multi-fit-app/commit/2c841980e2cb32cc0206399e2b2324f448a1ac4a);
-- Correção/manutenção de bug em "dashboard": reorganizar ordem de importação (https://github.com/lubysoftware/multi-fit-app/commit/5d2f2ae326b3a496b4be68c44310927e89a7f0b5);
-- Desenvolvimento de feature em "activity": adicionar animação ao pressionar o botão stop no resumo da atividade (https://github.com/lubysoftware/multi-fit-app/commit/a5d52e985639725905b4549093b399611fd6b244);
-- Correção/manutenção de bug em "login": ajustar itens alinhar (https://github.com/lubysoftware/multi-fit-app/commit/18b4f1dfcf3761c8dd8a8d0904a0cb0304aa867f);
-- Refatoração em "low-resolution-util": alinhar código (https://github.com/lubysoftware/multi-fit-app/commit/80f75f2560f65f11eb9f7ae7b159fbf2e8781e4c);
-`,
-      },
-      {
-        client: '8231',
-        project: '18548',
-        category: '1',
-        commitLink: 'Na descrição.',
-        date: '17/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description: `Em "multi-fit-app", corrigindo layout do dashboard:
-- Refatoração em "activity-card": alterar tamanho das informações (https://github.com/lubysoftware/multi-fit-app/commit/3ff5df4842c279369d6d4c7b86a81fa0b30f2d4e);
-- Refatoração em "activity-card": remover utilitário não utilizado (https://github.com/lubysoftware/multi-fit-app/commit/b83f8c971e93dfea0876755af5808e892437de19);
-- Desenvolvimento de feature em "activity-card": criar um utilitário para simplificar números (https://github.com/lubysoftware/multi-fit-app/commit/a48c1fd81a83cff1f4fa3d65e6e4c316d9d07a8d);
-- Correção/manutenção de bug em "activity-card": remover valor estático falso (https://github.com/lubysoftware/multi-fit-app/commit/b75d6f8b3f1f6d43ad4237fc736cb7acc2959d77);
-`,
-      },
-      {
-        date: '18/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description:
-          'Estudando Typescript, Next.js, GraphQL, MUI, ReactFormHooks e Apollo Client.',
-      },
-      {
-        date: '18/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description:
-          'Estudando Typescript, Next.js, GraphQL, MUI, ReactFormHooks e Apollo Client.',
-      },
-      {
-        date: '19/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description:
-          'Estudando Typescript, Next.js, GraphQL, MUI, ReactFormHooks e Zod para validações.',
-      },
-      {
-        date: '19/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description:
-          'Estudando Typescript, Next.js, GraphQL, MUI, ReactFormHooks e Zod para validações.',
-      },
-      {
-        date: '20/04/2023',
-        startTime: '06:30',
-        endTime: '12:00',
-        description:
-          'Estudando Typescript, Next.js, GraphQL, MUI, ReactFormHooks e Zod para validações.',
-      },
-      {
-        date: '20/04/2023',
-        startTime: '13:00',
-        endTime: '15:30',
-        description:
-          'Estudando Typescript, Next.js, GraphQL, MUI, ReactFormHooks e Zod para validações.',
-      },
-    ]
+    { cookies, ...config.appointmentsDefaults },
+    config.appointments
   );
 
   console.log(result);
