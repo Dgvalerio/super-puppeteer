@@ -1,8 +1,7 @@
-/* eslint-disable camelcase */
 import { Octokit } from 'octokit';
 
 import config from '../../config';
-import { Repositories, Repository } from '../types';
+import { Repositories } from '../types';
 
 (async (): Promise<void> => {
   const octokit = new Octokit({ auth: config.github.token });

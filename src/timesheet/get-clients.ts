@@ -5,7 +5,6 @@ import { Timesheet } from '../types';
 import { axiosConfig as config, loadCookies } from '../utils';
 
 const progress = (message: string): void =>
-  // eslint-disable-next-line no-console
   console.log(` - - - ${message} - - - `);
 
 const loadCategories = async (

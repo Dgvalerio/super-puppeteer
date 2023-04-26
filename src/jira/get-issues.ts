@@ -189,7 +189,6 @@ const writeMarkdown = (issues: ISimpleIssueGrouped[]): void => {
 
   fs.writeFileSync(filename, joinInMD(issues));
 
-  // eslint-disable-next-line no-console
   console.log(filename + ' ok');
 };
 

@@ -82,7 +82,7 @@
     "@typescript-eslint/explicit-function-return-type": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "warn",
     "@typescript-eslint/no-explicit-any": "warn",
-    "no-console": "warn",
+//    "no-console": "warn",
     "require-jsdoc": "off",
     "lines-between-class-members": [
       "error",
@@ -108,6 +108,7 @@
       }
     ],
     "new-cap": "off",
-    "arrow-body-style": ["error", "as-needed"]
+    "arrow-body-style": ["error", "as-needed"],
+    "camelcase": "off"
   }
 }
