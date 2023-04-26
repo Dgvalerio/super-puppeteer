@@ -206,6 +206,5 @@ const joinInMD = (commits: GroupedCommit[]): string => {
 
   fs.writeFileSync(filename, joinInMD(groupedByDate));
 
-  // eslint-disable-next-line no-console
   console.log(filename + ' ok');
 })();

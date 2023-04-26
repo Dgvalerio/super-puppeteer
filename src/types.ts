@@ -1,5 +1,60 @@
 import { Endpoints } from '@octokit/types';
 
+export interface SimpleAppointment {
+  client: string;
+  project: string;
+  category: string;
+  // No formado dd/MM/yyyy
+  date: string;
+  // No formato hh:mm
+  startTime: string;
+  // No formato hh:mm
+  endTime: string;
+  notMonetize?: boolean;
+  commitLink?: string;
+  description: string;
+}
+
+export namespace Timesheet {
+  export interface Client {
+    id: string;
+    title: string;
+    projects: Project[];
+  }
+
+  export interface Project {
+    Id: number;
+    Name: string;
+    StartDate: string;
+    EndDate: string;
+    IdCustomer: number;
+    categories: Category[];
+  }
+
+  export interface Category {
+    Id: number;
+    Name: string;
+    IdProject: number;
+  }
+
+  export interface Appointment {
+    __RequestVerificationToken: string;
+    Id: string;
+    IdCustomer: string;
+    IdProject: string;
+    IdCategory: string;
+    // No formado dd/MM/yyyy
+    InformedDate: string;
+    // No formato hh:mm
+    StartTime: string;
+    // No formato hh:mm
+    EndTime: string;
+    NotMonetize: string;
+    CommitRepository: string;
+    Description: string;
+  }
+}
+
 export interface IAppointments extends ISimpleAppointments {
   client: string;
   project: string;
@@ -18,6 +73,9 @@ export interface ISimpleAppointments {
 export type Commits =
   Endpoints['GET /repos/{owner}/{repo}/commits']['response']['data'];
 export type Commit = Commits[number];
+
+export type Repositories = Endpoints['GET /user/repos']['response']['data'];
+export type Repository = Repositories[number];
 
 export interface SimpleCommit {
   repo: string;
@@ -96,8 +154,6 @@ export interface ConfigurationTypes {
       end: string;
     }[];
   };
-  appointments?: {
-    date: string;
-    descriptions: string[];
-  }[];
+  appointmentsDefaults: Partial<SimpleAppointment>;
+  appointments: Partial<SimpleAppointment>[];
 }

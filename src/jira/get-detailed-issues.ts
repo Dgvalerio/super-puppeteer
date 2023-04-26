@@ -157,6 +157,5 @@ ${issue.description}
 
   fs.writeFileSync(filename, joinInMD(simpleIssues));
 
-  // eslint-disable-next-line no-console
   console.log(filename + ' ok');
 })();
