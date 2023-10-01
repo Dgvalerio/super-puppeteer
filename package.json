@@ -8,6 +8,7 @@
   "scripts": {
     "start:project": "mkdir markdowns && (cd markdowns && mkdir jira && cd ..) && ((cp config.example.ts config.ts)||(copy config.example.ts config.ts))",
     "git:get-repositories": "tsnd --transpile-only src/github/get-repositories.ts",
+    "git:get-pulls": "tsnd --transpile-only src/github/get-pulls.ts",
     "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
     "sheet:get-clients": "tsnd --transpile-only src/timesheet/get-clients.ts",
@@ -35,7 +36,7 @@
     "@octokit/types": "^8.0.0",
     "axios": "^1.2.2",
     "axios-cookiejar-support": "^4.0.6",
-    "octokit": "^2.0.10",
+    "octokit": "^3.1.1",
     "tough-cookie": "^4.1.2"
   },
   "packageManager": "yarn@3.6.3"
