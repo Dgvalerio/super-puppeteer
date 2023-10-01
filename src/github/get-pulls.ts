@@ -50,50 +50,61 @@ import config from '../../config';
         }
       );
 
+      const items: { state?: string; body: string; date: string }[] = [];
+
+      reviews.data
+        .filter((r) => r.user.login === user.data.login)
+        .filter((r) => getMonth(parseISO(r.submitted_at)) === 8)
+        .forEach((r) =>
+          items.push({ state: r.state, body: r.body, date: r.submitted_at })
+        );
+
+      comments.data
+        .filter((r) => r.user.login === user.data.login)
+        .filter(
+          (r) =>
+            getMonth(parseISO(r.updated_at)) === 8 ||
+            getMonth(parseISO(r.created_at)) === 8
+        )
+        .forEach((r) => items.push({ body: r.body, date: r.created_at }));
+
       return {
+        number: pr.number,
         title: `[${pr.number}] - ${pr.title} @${pr.user} (${new Date(
           pr.updated_at
-        ).toLocaleString('pt-rr')}) ${
+        ).toLocaleString('pt-br')}) ${
           getMonth(parseISO(pr.updated_at)) === 8 ? 'Current!' : ''
         }`,
-        reviews: reviews.data
-          .filter((r) => r.user.login === user.data.login)
-          .filter((r) => getMonth(parseISO(r.submitted_at)) === 8),
-        comments: comments.data
-          .filter((r) => r.user.login === user.data.login)
-          .filter(
-            (r) =>
-              getMonth(parseISO(r.updated_at)) === 8 ||
-              getMonth(parseISO(r.created_at)) === 8
-          ),
+        items: items.sort((a, b) => {
+          if (a.date < b.date) return -1;
+          else if (a.date > b.date) return 1;
+          else return 0;
+        }),
       };
     });
 
     const result = await Promise.all(promise);
 
-    result.map(({ title, comments, reviews }) => {
-      if (comments.length + reviews.length === 0) {
-        return;
-      }
+    result
+      .sort((a, b) => {
+        if (a.number < b.number) return -1;
+        else if (a.number > b.number) return 1;
+        else return 0;
+      })
+      .map(({ title, items }) => {
+        if (items.length === 0) return;
 
-      console.log(title);
+        console.log(title);
 
-      comments.length > 0 &&
-        console.table(
-          comments.map((r) => ({
-            body: typeof r.body === 'string' ? r.body.substring(0, 64) : r.body,
-            created_at: new Date(r.created_at).toLocaleString('pt-br'),
-          }))
-        );
-
-      reviews.length > 0 &&
-        console.table(
-          reviews.map((r) => ({
-            state: r.state,
-            body: typeof r.body === 'string' ? r.body.substring(0, 64) : r.body,
-            submitted_at: new Date(r.submitted_at).toLocaleString('pt-br'),
-          }))
-        );
-    });
+        items.length > 0 &&
+          console.table(
+            items.map((r) => ({
+              state: r.state,
+              body:
+                typeof r.body === 'string' ? r.body.substring(0, 64) : r.body,
+              date: new Date(r.date).toLocaleString('pt-br'),
+            }))
+          );
+      });
   });
 })();
