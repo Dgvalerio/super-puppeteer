@@ -11,3 +11,12 @@ node_modules
 
 markdowns/*
 config.ts
+
+# yarn
+.pnp.*
+.yarn/*
+!.yarn/releases
+!.yarn/patches
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions

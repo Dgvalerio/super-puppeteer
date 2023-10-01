@@ -18,10 +18,11 @@
     "jira:get-issues": "tsnd --transpile-only src/jira/get-issues.ts"
   },
   "devDependencies": {
+    "@dgvalerio/eslint-config": "^1.5.2",
     "@types/tough-cookie": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
-    "eslint": "^8.28.0",
+    "eslint": "^8.50.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import-helpers": "^1.3.1",
@@ -36,5 +37,6 @@
     "axios-cookiejar-support": "^4.0.6",
     "octokit": "^2.0.10",
     "tough-cookie": "^4.1.2"
-  }
+  },
+  "packageManager": "yarn@3.6.3"
 }
