@@ -1,19 +1,17 @@
-import { Octokit } from 'octokit';
-
 import config from '../../config';
+import { getOctokit } from '../util/github';
+import { logger } from '../util/logger';
 
 (async (): Promise<void> => {
-  const octokit = new Octokit({ auth: config.github.token });
-
   config.github.repositories.map(async ({ name }) => {
     const [owner, repo] = name.split('/');
 
-    const response = await octokit.request(
+    const response = await getOctokit().request(
       'GET /repos/{owner}/{repo}/branches',
       { owner, repo, per_page: 100 }
     );
 
-    console.table(
+    logger.table(
       response.data.map(({ name, commit }) => ({
         repo,
         name: name,

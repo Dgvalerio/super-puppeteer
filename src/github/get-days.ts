@@ -1,27 +1,27 @@
 import { getMonth, parseISO } from 'date-fns';
-import * as fs from 'fs';
-import { Octokit } from 'octokit';
 
 import config from '../../config';
+import { Comment, Pull, Review, SimplePull } from '../types';
+import { getComments, getPulls, getReviews, getUser } from '../util/github';
+import { logger } from '../util/logger';
+import { sortBy } from '../util/sort-by';
+import { writeFile } from '../util/write-file';
+
+const currentMonth = 8;
 
 (async (): Promise<void> => {
-  const octokit = new Octokit({ auth: config.github.token });
+  const { login } = await getUser();
 
-  const user = await octokit.rest.users.getAuthenticated();
+  const repositoriesPulls: Record<string, Record<string, string[]>> = {};
 
-  config.github.repositories.map(async ({ name }, index) => {
-    if (index !== 0) return;
-
+  const loadingPulls = config.github.repositories.map(async ({ name }) => {
     const [owner, repo] = name.split('/');
 
-    const pulls = await octokit.request('GET /repos/{owner}/{repo}/pulls', {
-      owner,
-      repo,
-      per_page: 100,
-      state: 'all',
-    });
+    logger.info(`Loading "${repo}" from "${owner}"`);
 
-    const fPulls = pulls.data.map((r) => ({
+    const pulls = await getPulls({ owner, repo });
+
+    const fPulls: SimplePull[] = pulls.map((r) => ({
       number: r.number,
       state: r.state,
       user: r.user.login,
@@ -30,120 +30,99 @@ import config from '../../config';
       updated_at: r.updated_at,
     }));
 
-    const promise = fPulls.map(async (pr) => {
-      const comments = await octokit.request(
-        'GET /repos/{owner}/{repo}/pulls/{pull_number}/comments',
-        {
-          owner,
-          repo,
-          pull_number: pr.number,
-          per_page: 100,
-        }
-      );
+    interface PullRequest {
+      number: Pull['number'];
+      date: Pull['updated_at'];
+      title: string;
+      items: {
+        state?: Review['state'];
+        body: Review['body'] | Comment['body'];
+        date: Review['submitted_at'] | Comment['created_at'];
+      }[];
+    }
 
-      const reviews = await octokit.request(
-        'GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews',
-        {
-          owner,
-          repo,
-          pull_number: pr.number,
-          per_page: 100,
-        }
-      );
+    const promise: Promise<PullRequest>[] = fPulls.map(async (pr) => {
+      const params = { repo, owner, pull_number: pr.number };
 
-      const items: { state?: string; body: string; date: string }[] = [];
+      const comments = await getComments(params);
 
-      reviews.data
-        .filter((r) => r.user.login === user.data.login)
-        .filter((r) => getMonth(parseISO(r.submitted_at)) === 8)
+      const reviews = await getReviews(params);
+
+      const items: {
+        state?: Review['state'];
+        body: Review['body'] | Comment['body'];
+        date: Review['submitted_at'] | Comment['created_at'];
+      }[] = [];
+
+      reviews
+        .filter((r) => r.user.login === login)
+        .filter((r) => getMonth(parseISO(r.submitted_at)) === currentMonth)
         .forEach((r) =>
           items.push({ state: r.state, body: r.body, date: r.submitted_at })
         );
 
-      comments.data
-        .filter((r) => r.user.login === user.data.login)
-        .filter(
-          (r) =>
-            getMonth(parseISO(r.updated_at)) === 8 ||
-            getMonth(parseISO(r.created_at)) === 8
-        )
+      comments
+        .filter((r) => r.user.login === login)
+        .filter((r) => getMonth(parseISO(r.created_at)) === currentMonth)
         .forEach((r) => items.push({ body: r.body, date: r.created_at }));
 
       return {
         number: pr.number,
         date: pr.updated_at,
         title: `Pull Request ${pr.number} referente a "${pr.title}"`,
-        items: items.sort((a, b) => {
-          if (a.date < b.date) return -1;
-          else if (a.date > b.date) return 1;
-          else return 0;
-        }),
+        items: items.sort(sortBy('date')),
       };
     });
 
-    const result = await Promise.all(promise);
+    const result: PullRequest[] = await Promise.all(promise);
 
     const byDay: Record<string, string[]> = {};
 
-    result
-      .sort((a, b) => {
-        if (a.number < b.number) return -1;
-        else if (a.number > b.number) return 1;
-        else return 0;
-      })
-      .forEach(({ title, items }) => {
-        if (items.length === 0) return;
+    result.sort(sortBy('number')).forEach(({ title, items }) => {
+      items.forEach((r) => {
+        const key = new Date(r.date).toLocaleDateString('pt-br');
 
-        console.log(title);
+        if (!byDay[key]) byDay[key] = [];
 
-        console.table(
-          items.map((r) => {
-            const key = new Date(r.date).toLocaleDateString('pt-br');
+        const action = r.state === 'APPROVED' ? 'Aprovando' : 'Corrigindo';
 
-            console.log(key);
+        const content = ` - ${action} o ${title}\n`;
 
-            const content = ` - ${
-              r.state === 'APPROVED' ? 'Aprovando' : 'Corrigindo'
-            } o ${title}\n`;
+        const exists = byDay[key].find((value) => value === content);
 
-            if (byDay[key]) {
-              if (!byDay[key].find((value) => value === content)) {
-                byDay[key].push(content);
-              }
-            } else {
-              byDay[key] = [content];
-            }
-
-            return {
-              state: r.state,
-              body:
-                typeof r.body === 'string' ? r.body.substring(0, 64) : r.body,
-              date: r.date,
-            };
-          })
-        );
-
-        console.log(byDay);
+        if (!exists) byDay[key].push(content);
       });
+    });
 
-    // write markdown
-    const nameForFile = new Date().toISOString().replace(/[:.T]/gm, '-');
-    const filename = `markdowns/${nameForFile}.md`;
+    repositoriesPulls[name] = byDay;
 
-    // fs.writeFileSync(filename, JSON.stringify(byDay, null, 2));
-    fs.writeFileSync(
-      filename,
-      Object.entries(byDay)
-        .map(([date, content]) => ({ date, content }))
-        .sort((a, b) => {
-          if (a.date < b.date) return -1;
-          else if (a.date > b.date) return 1;
-          else return 0;
-        })
-        .map(({ date, content }) => `## ${date}\n${content.join('')}`)
-        .join('\n')
-    );
-
-    console.log(filename + ' ok');
+    logger.info(`"${repo}" from "${owner}" loaded`);
   });
+
+  await Promise.all(loadingPulls);
+
+  const grouped: Record<string, Record<string, string[]>> = {};
+
+  Object.entries(repositoriesPulls).forEach(([repository, days]) =>
+    Object.entries(days).forEach(([date, content]) => {
+      if (!grouped[date]) grouped[date] = {};
+
+      grouped[date][repository] = content;
+    })
+  );
+
+  writeFile(
+    Object.entries(grouped)
+      .map(([date, day]) => ({ date, day }))
+      .sort(sortBy('date'))
+      .map(
+        ({ date, day }) =>
+          `# ${date}\n${Object.entries(day)
+            .map(
+              ([repository, content]) => `## ${repository}\n${content.join('')}`
+            )
+            .join('\n')}`
+      )
+      .join('\n')
+  );
 })();

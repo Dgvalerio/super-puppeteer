@@ -16,10 +16,10 @@ export interface SimpleAppointment {
 }
 
 export namespace Timesheet {
-  export interface Client {
-    id: string;
-    title: string;
-    projects: Project[];
+  export interface Category {
+    Id: number;
+    Name: string;
+    IdProject: number;
   }
 
   export interface Project {
@@ -31,10 +31,10 @@ export namespace Timesheet {
     categories: Category[];
   }
 
-  export interface Category {
-    Id: number;
-    Name: string;
-    IdProject: number;
+  export interface Client {
+    id: string;
+    title: string;
+    projects: Project[];
   }
 
   export interface Appointment {
@@ -55,19 +55,19 @@ export namespace Timesheet {
   }
 }
 
-export interface IAppointments extends ISimpleAppointments {
-  client: string;
-  project: string;
-  category: string;
-  notMonetize: boolean;
-}
-
 export interface ISimpleAppointments {
   description: string;
   date: string;
   commit: string;
   startTime: string;
   endTime: string;
+}
+
+export interface IAppointments extends ISimpleAppointments {
+  client: string;
+  project: string;
+  category: string;
+  notMonetize: boolean;
 }
 
 export type Commits =
@@ -157,3 +157,26 @@ export interface ConfigurationTypes {
   appointmentsDefaults: Partial<SimpleAppointment>;
   appointments: Partial<SimpleAppointment>[];
 }
+
+export type Pulls =
+  Endpoints['GET /repos/{owner}/{repo}/pulls']['response']['data'];
+export type Pull = Pulls[number];
+
+export interface SimplePull {
+  number: Pull['number'];
+  state: Pull['state'];
+  user: Pull['user']['login'];
+  title: Pull['title'];
+  created_at: Pull['created_at'];
+  updated_at: Pull['updated_at'];
+}
+
+export type Comments =
+  Endpoints['GET /repos/{owner}/{repo}/pulls/{pull_number}/comments']['response']['data'];
+export type Comment = Comments[number];
+
+export type Reviews =
+  Endpoints['GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews']['response']['data'];
+export type Review = Reviews[number];
+
+export type User = Endpoints['GET /user']['response']['data'];

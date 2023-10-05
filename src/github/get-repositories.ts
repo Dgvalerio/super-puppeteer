@@ -1,10 +1,9 @@
-import { Octokit } from 'octokit';
-
-import config from '../../config';
 import { Repositories } from '../types';
+import { getOctokit } from '../util/github';
+import { logger } from '../util/logger';
 
 (async (): Promise<void> => {
-  const octokit = new Octokit({ auth: config.github.token });
+  const octokit = getOctokit();
 
   const get = async (): Promise<Repositories> => {
     let aux: Repositories = [];
@@ -35,5 +34,5 @@ import { Repositories } from '../types';
     owner: { login: owner.login, avatar: owner.avatar_url },
   }));
 
-  console.table(parsed);
+  logger.table(parsed);
 })();

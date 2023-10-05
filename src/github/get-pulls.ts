@@ -1,26 +1,21 @@
 import { getMonth, parseISO } from 'date-fns';
-import { Octokit } from 'octokit';
 
 import config from '../../config';
+import { getComments, getPulls, getReviews, getUser } from '../util/github';
+import { logger } from '../util/logger';
+import { sortBy } from '../util/sort-by';
 
 (async (): Promise<void> => {
-  const octokit = new Octokit({ auth: config.github.token });
-
-  const user = await octokit.rest.users.getAuthenticated();
+  const user = await getUser();
 
   config.github.repositories.map(async ({ name }, index) => {
     if (index !== 0) return;
 
     const [owner, repo] = name.split('/');
 
-    const pulls = await octokit.request('GET /repos/{owner}/{repo}/pulls', {
-      owner,
-      repo,
-      per_page: 100,
-      state: 'all',
-    });
+    const pulls = await getPulls({ owner, repo });
 
-    const fPulls = pulls.data.map((r) => ({
+    const fPulls = pulls.map((r) => ({
       number: r.number,
       state: r.state,
       user: r.user.login,
@@ -30,37 +25,23 @@ import config from '../../config';
     }));
 
     const promise = fPulls.map(async (pr) => {
-      const comments = await octokit.request(
-        'GET /repos/{owner}/{repo}/pulls/{pull_number}/comments',
-        {
-          owner,
-          repo,
-          pull_number: pr.number,
-          per_page: 100,
-        }
-      );
+      const params = { owner, repo, pull_number: pr.number };
 
-      const reviews = await octokit.request(
-        'GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews',
-        {
-          owner,
-          repo,
-          pull_number: pr.number,
-          per_page: 100,
-        }
-      );
+      const comments = await getComments(params);
+
+      const reviews = await getReviews(params);
 
       const items: { state?: string; body: string; date: string }[] = [];
 
-      reviews.data
-        .filter((r) => r.user.login === user.data.login)
+      reviews
+        .filter((r) => r.user.login === user.login)
         .filter((r) => getMonth(parseISO(r.submitted_at)) === 8)
         .forEach((r) =>
           items.push({ state: r.state, body: r.body, date: r.submitted_at })
         );
 
-      comments.data
-        .filter((r) => r.user.login === user.data.login)
+      comments
+        .filter((r) => r.user.login === user.login)
         .filter(
           (r) =>
             getMonth(parseISO(r.updated_at)) === 8 ||
@@ -75,36 +56,25 @@ import config from '../../config';
         ).toLocaleString('pt-br')}) ${
           getMonth(parseISO(pr.updated_at)) === 8 ? 'Current!' : ''
         }`,
-        items: items.sort((a, b) => {
-          if (a.date < b.date) return -1;
-          else if (a.date > b.date) return 1;
-          else return 0;
-        }),
+        items: items.sort(sortBy('date')),
       };
     });
 
     const result = await Promise.all(promise);
 
-    result
-      .sort((a, b) => {
-        if (a.number < b.number) return -1;
-        else if (a.number > b.number) return 1;
-        else return 0;
-      })
-      .map(({ title, items }) => {
-        if (items.length === 0) return;
+    result.sort(sortBy('number')).map(({ title, items }) => {
+      if (items.length === 0) return;
 
-        console.log(title);
+      logger.info(title);
 
-        items.length > 0 &&
-          console.table(
-            items.map((r) => ({
-              state: r.state,
-              body:
-                typeof r.body === 'string' ? r.body.substring(0, 64) : r.body,
-              date: new Date(r.date).toLocaleString('pt-br'),
-            }))
-          );
-      });
+      items.length > 0 &&
+        logger.table(
+          items.map((r) => ({
+            state: r.state,
+            body: typeof r.body === 'string' ? r.body.substring(0, 64) : r.body,
+            date: new Date(r.date).toLocaleString('pt-br'),
+          }))
+        );
+    });
   });
 })();

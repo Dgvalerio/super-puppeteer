@@ -1,8 +1,5 @@
 import { Endpoints } from '@octokit/types';
 
-import * as fs from 'fs';
-import { Octokit } from 'octokit';
-
 import config from '../../config';
 import {
   Commit,
@@ -12,6 +9,9 @@ import {
   SimpleCommit,
   TimeGroupedCommit,
 } from '../types';
+import { getOctokit, getUser } from '../util/github';
+import { sortBy } from '../util/sort-by';
+import { writeFile } from '../util/write-file';
 
 const dateNow = (dateString: string): string => {
   const date = new Date(dateString);
@@ -151,13 +151,13 @@ const joinInMD = (commits: GroupedCommit[]): string => {
 };
 
 (async (): Promise<void> => {
-  const octokit = new Octokit({ auth: config.github.token });
+  const octokit = getOctokit();
   let email = config.github.email;
 
   if (!email) {
-    const response = await octokit.request('GET /user');
+    const user = await getUser();
 
-    email = response.data.email;
+    email = user.email;
   }
 
   const promise = config.github.repositories.map(
@@ -196,15 +196,10 @@ const joinInMD = (commits: GroupedCommit[]): string => {
   const joined = joinLists(response);
 
   // sort by date
-  joined.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  joined.sort(sortBy('date'));
 
   const groupedByDate: GroupedCommit[] = groupByDate(joined);
 
   // write markdown
-  const name = new Date().toISOString().replace(/[:.T]/gm, '-');
-  const filename = `markdowns/${name}.md`;
-
-  fs.writeFileSync(filename, joinInMD(groupedByDate));
-
-  console.log(filename + ' ok');
+  writeFile(joinInMD(groupedByDate));
 })();
