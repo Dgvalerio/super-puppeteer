@@ -77,6 +77,10 @@ export type Commit = Commits[number];
 export type Repositories = Endpoints['GET /user/repos']['response']['data'];
 export type Repository = Repositories[number];
 
+export type Branches =
+  Endpoints['GET /repos/{owner}/{repo}/branches']['response']['data'];
+export type Branch = Branches[number];
+
 export interface SimpleCommit {
   repo: string;
   date: string;
@@ -124,6 +128,8 @@ export interface ConfigurationTypes {
     repositories: {
       // Nome do repositório.
       name: string;
+      // Nome da branch
+      branch?: string;
       // SHA da branch.
       branch_sha?: string;
     }[];

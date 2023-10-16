@@ -161,13 +161,15 @@ const joinInMD = (commits: GroupedCommit[]): string => {
   }
 
   const promise = config.github.repositories.map(
-    async (repo): Promise<SimpleCommit[]> => {
+    async ({ name, branch_sha }): Promise<SimpleCommit[]> => {
+      const [owner, repo] = name.split('/');
+
       let searchConfig: Endpoints['GET /repos/{owner}/{repo}/commits']['parameters'] =
         {
-          owner: 'lubysoftware',
-          repo: repo.name,
+          owner,
+          repo,
           author: email,
-          sha: repo.branch_sha,
+          sha: branch_sha,
           per_page: 100,
         };
 
@@ -184,7 +186,7 @@ const joinInMD = (commits: GroupedCommit[]): string => {
       );
 
       const simplified: SimpleCommit[] = response.data.map((data) =>
-        simplifyCommit(repo.name, data)
+        simplifyCommit(name, data)
       );
 
       return removeMerge(simplified);
@@ -195,11 +197,9 @@ const joinInMD = (commits: GroupedCommit[]): string => {
 
   const joined = joinLists(response);
 
-  // sort by date
   joined.sort(sortBy('date'));
 
   const groupedByDate: GroupedCommit[] = groupByDate(joined);
 
-  // write markdown
   writeFile(joinInMD(groupedByDate));
 })();

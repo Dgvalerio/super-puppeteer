@@ -7,7 +7,7 @@ import { logger } from '../util/logger';
 import { sortBy } from '../util/sort-by';
 import { writeFile } from '../util/write-file';
 
-const currentMonth = 8;
+const currentMonth = 9;
 
 (async (): Promise<void> => {
   const { login } = await getUser();
