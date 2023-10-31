@@ -9,7 +9,7 @@ import {
   SimpleCommit,
   TimeGroupedCommit,
 } from '../types';
-import { getOctokit, getUser } from '../util/github';
+import { getOctokit, getRepositoryBranches, getUser } from '../util/github';
 import { sortBy } from '../util/sort-by';
 import { writeFile } from '../util/write-file';
 
@@ -161,15 +161,18 @@ const joinInMD = (commits: GroupedCommit[]): string => {
   }
 
   const promise = config.github.repositories.map(
-    async ({ name, branch_sha }): Promise<SimpleCommit[]> => {
+    async ({ name, branch }): Promise<SimpleCommit[]> => {
       const [owner, repo] = name.split('/');
+
+      const branches = await getRepositoryBranches({ name });
+      const sha = branches.find((b) => b.name === branch).commit.sha;
 
       let searchConfig: Endpoints['GET /repos/{owner}/{repo}/commits']['parameters'] =
         {
           owner,
           repo,
           author: email,
-          sha: branch_sha,
+          sha,
           per_page: 100,
         };
 
