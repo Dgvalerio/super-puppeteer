@@ -130,8 +130,6 @@ export interface ConfigurationTypes {
       name: string;
       // Nome da branch
       branch?: string;
-      // SHA da branch.
-      branch_sha?: string;
     }[];
     // Data da busca
     when?: {
