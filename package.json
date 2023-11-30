@@ -12,6 +12,7 @@
     "git:get-pulls": "tsnd --transpile-only src/github/get-pulls.ts",
     "git:get-branchs": "tsnd --transpile-only src/github/get-branchs.ts",
     "git:get-commits": "tsnd --transpile-only src/github/get-commits.ts",
+    "sheet:get-appointments": "tsnd --transpile-only src/timesheet/get-appointments.ts",
     "sheet:get-clients": "tsnd --transpile-only src/timesheet/get-clients.ts",
     "sheet:send-appointments": "tsnd --transpile-only src/timesheet/send-appointments.ts",
     "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",

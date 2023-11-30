@@ -132,11 +132,6 @@ const joinLists = (commits: SimpleCommit[][]): SimpleCommit[] => {
   return items;
 };
 
-const removeMerge = (commits: SimpleCommit[]): SimpleCommit[] =>
-  commits.filter(
-    ({ description }) => !description.includes("Merge branch 'develop'")
-  );
-
 const joinInMD = (commits: GroupedCommit[]): string => {
   let res = '';
 
@@ -188,11 +183,7 @@ const joinInMD = (commits: GroupedCommit[]): string => {
         searchConfig
       );
 
-      const simplified: SimpleCommit[] = response.data.map((data) =>
-        simplifyCommit(name, data)
-      );
-
-      return removeMerge(simplified);
+      return response.data.map((data) => simplifyCommit(name, data));
     }
   );
 
