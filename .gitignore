@@ -9,7 +9,7 @@ gen
 
 node_modules
 
-markdowns/*
+#markdowns/*
 config.ts
 
 # yarn

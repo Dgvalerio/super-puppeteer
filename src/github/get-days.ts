@@ -7,9 +7,11 @@ import { logger } from '../util/logger';
 import { sortBy } from '../util/sort-by';
 import { writeFile } from '../util/write-file';
 
-const currentMonth = 9;
-
 (async (): Promise<void> => {
+  const iso = config.github.when.since;
+  const date = iso.split('T')[0];
+  const currentMonth = Number(date.split('-')[1]) - 1;
+
   const { login } = await getUser();
 
   const repositoriesPulls: Record<string, Record<string, string[]>> = {};
