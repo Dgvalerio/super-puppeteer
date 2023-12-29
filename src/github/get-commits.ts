@@ -1,4 +1,6 @@
-import { Endpoints } from '@octokit/types';
+import { translate } from '@vitalets/google-translate-api';
+
+import { HttpProxyAgent } from 'http-proxy-agent';
 
 import config from '../../config';
 import {
@@ -10,8 +12,68 @@ import {
   TimeGroupedCommit,
 } from '../types';
 import { getOctokit, getRepositoryBranches, getUser } from '../util/github';
+import { proxyList } from '../util/proxy-list';
 import { sortBy } from '../util/sort-by';
 import { writeFile } from '../util/write-file';
+
+const translateCommitMessage = async (
+  commitMessage: string,
+  agent: HttpProxyAgent<string>
+): Promise<string> => {
+  type Category =
+    | 'feat'
+    | 'fix'
+    | 'docs'
+    | 'style'
+    | 'refactor'
+    | 'chore'
+    | 'test'
+    | 'merge'
+    | 'build';
+
+  const categories: Record<Category, string> = {
+    feat: 'Adição',
+    fix: 'Correção/ajuste',
+    docs: 'Documentação',
+    style: 'Formatação de estilos',
+    refactor: 'Refatoração',
+    chore: 'Outras alterações',
+    test: 'Testes automatizados',
+    merge: 'Review de Pull Request',
+    build: 'Ajuste de build',
+  };
+
+  const match = commitMessage.match(/^(\w+)\(([^)]+)\):\s(.+)$/);
+
+  if (match) {
+    const category = match[1];
+    const scope = match[2];
+
+    const description = await translate(match[3], {
+      to: 'pt-br',
+      fetchOptions: { agent },
+    });
+
+    return `${categories[category]} em "${scope}": ${description.text}`;
+  } else if (commitMessage.startsWith('Merge pull')) {
+    const regex =
+      /^Merge pull request #(\d+) from [^\n]+\n\n(.+) \(([^\n]+)\)$/;
+
+    const result = commitMessage.match(regex);
+
+    if (result) {
+      const pull = result[1];
+      const description = result[2];
+      const link = result[3];
+
+      return `Mergando Pull Request #${pull} referente a "${description}" (${link})`;
+    } else {
+      return commitMessage;
+    }
+  } else {
+    return commitMessage;
+  }
+};
 
 const dateNow = (dateString: string): string => {
   const date = new Date(dateString);
@@ -35,7 +97,7 @@ const timeFilter =
     item: ConfigurationTypes['appointmentConfig']['dayTimes'][number],
     index: number
   ) =>
-  (d): boolean =>
+  (d: { time: string }): boolean =>
     (timeNumber(item.start) < timeNumber(d.time) &&
       timeNumber(d.time) < timeNumber(item.end)) ||
     (index === 0 && timeNumber(d.time) < timeNumber(item.end)) ||
@@ -145,55 +207,148 @@ const joinInMD = (commits: GroupedCommit[]): string => {
   return res;
 };
 
-(async (): Promise<void> => {
-  const octokit = getOctokit();
-  let email = config.github.email;
+const parseRepositories = (
+  repositories: ConfigurationTypes['github']['repositories']
+): { name: string; owner: string; repository: string; branch: string }[] =>
+  repositories.map((r) => {
+    const name = r.name;
+    const [owner, repository] = name.split('/');
 
-  if (!email) {
-    const user = await getUser();
+    return { name, owner, repository, branch: r.branch };
+  });
 
-    email = user.email;
-  }
+interface GetRepositoryCommitsProps {
+  author: string;
+  repository: {
+    name: string;
+    owner: string;
+    repository: string;
+    branch: string;
+  };
+  interval: ConfigurationTypes['github']['when'];
+}
 
-  const promise = config.github.repositories.map(
-    async ({ name, branch }): Promise<SimpleCommit[]> => {
-      const [owner, repo] = name.split('/');
+const getRepositoryCommits = async ({
+  author,
+  repository: { name, owner, repository: repo, branch },
+  interval: { until, since },
+}: GetRepositoryCommitsProps): Promise<SimpleCommit[]> => {
+  const branches = await getRepositoryBranches({ name });
+  const sha = branches.find((b) => b.name === branch)?.commit.sha;
 
-      const branches = await getRepositoryBranches({ name });
-      const sha = branches.find((b) => b.name === branch).commit.sha;
-
-      let searchConfig: Endpoints['GET /repos/{owner}/{repo}/commits']['parameters'] =
-        {
-          owner,
-          repo,
-          author: email,
-          sha,
-          per_page: 100,
-        };
-
-      if (config.github.when) {
-        if (config.github.when.until)
-          searchConfig = { ...searchConfig, until: config.github.when.until };
-        if (config.github.when.since)
-          searchConfig = { ...searchConfig, since: config.github.when.since };
-      }
-
-      const response = await octokit.request(
-        'GET /repos/{owner}/{repo}/commits',
-        searchConfig
-      );
-
-      return response.data.map((data) => simplifyCommit(name, data));
+  const response = await getOctokit().request(
+    'GET /repos/{owner}/{repo}/commits',
+    {
+      owner,
+      repo,
+      author,
+      sha,
+      per_page: 100,
+      until: until || undefined,
+      since: since || undefined,
     }
   );
 
-  const response = await Promise.all(promise);
+  return response.data.map((data) => simplifyCommit(name, data));
+};
 
-  const joined = joinLists(response);
+const translateCommits = async (
+  commits: SimpleCommit[]
+): Promise<SimpleCommit[]> => {
+  const size = commits.length;
 
-  joined.sort(sortBy('date'));
+  console.log(`Traduzindo ${size} commits`);
 
-  const groupedByDate: GroupedCommit[] = groupByDate(joined);
+  const translatedCommits: SimpleCommit[] = [];
 
-  writeFile(joinInMD(groupedByDate));
+  let proxyPos = 0;
+
+  let agent = new HttpProxyAgent(proxyList[proxyPos]);
+
+  const translateCommit = async (position: number): Promise<void> => {
+    const data: SimpleCommit = commits[position];
+
+    const percent = ((position + 1) / size) * 100;
+    const progress = [...new Array(100)]
+      .map((_, i) => (i < percent ? 'X' : '_'))
+      .join('');
+
+    console.log(`(${progress}) | ${percent}% | ${position + 1} de ${size}`);
+
+    try {
+      const description = await translateCommitMessage(data.description, agent);
+
+      translatedCommits.push({ ...data, description });
+
+      if (position + 1 < size) await translateCommit(position + 1);
+    } catch (e) {
+      proxyPos += 1;
+
+      const name = (e as { name: string }).name;
+
+      console.log(
+        `Catch "${name}" with proxy "${proxyPos}", try "${proxyList[proxyPos]}"`
+      );
+
+      if (
+        ['TooManyRequestsError', 'BadGatewayError', 'FetchError'].includes(name)
+      ) {
+        agent = new HttpProxyAgent(proxyList[proxyPos]);
+
+        await translateCommit(position);
+      } else {
+        console.log(e);
+
+        translatedCommits.push(commits[position]);
+
+        if (position + 1 < size) await translateCommit(position + 1);
+      }
+    }
+  };
+
+  await translateCommit(0);
+
+  return translatedCommits;
+};
+
+(async (): Promise<void> => {
+  try {
+    let email = config.github.email;
+
+    if (!email) {
+      const user = await getUser();
+
+      email = user.email;
+    }
+
+    const repositories = parseRepositories(config.github.repositories);
+
+    const commitsPromise = repositories.map(async (repository) =>
+      getRepositoryCommits({
+        author: email,
+        interval: config.github.when,
+        repository,
+      })
+    );
+
+    const commits = await Promise.all(commitsPromise);
+
+    const joined = joinLists(commits);
+
+    joined.sort(sortBy('date'));
+
+    let finish: SimpleCommit[] = [...joined];
+
+    const translateDescription = true;
+
+    if (translateDescription) {
+      finish = await translateCommits(joined);
+    }
+
+    const groupedByDate: GroupedCommit[] = groupByDate(finish);
+
+    writeFile(joinInMD(groupedByDate));
+  } catch (e) {
+    console.log(e);
+  }
 })();
