@@ -16,6 +16,12 @@ import { proxyList } from '../util/proxy-list';
 import { sortBy } from '../util/sort-by';
 import { writeFile } from '../util/write-file';
 
+const logger = false;
+
+const log: typeof console.log = (...props) =>
+  // eslint-disable-next-line no-console
+  logger ? console.log(props) : null;
+
 const translateCommitMessage = async (
   commitMessage: string,
   agent: HttpProxyAgent<string>
@@ -53,6 +59,13 @@ const translateCommitMessage = async (
       to: 'pt-br',
       fetchOptions: { agent },
     });
+
+    // const description =
+    //   { text: match[3] } ||
+    //   (await translate(match[3], {
+    //     to: 'pt-br',
+    //     fetchOptions: { agent },
+    //   }));
 
     return `${categories[category]} em "${scope}": ${description.text}`;
   } else if (commitMessage.startsWith('Merge pull')) {
@@ -311,6 +324,14 @@ const translateCommits = async (
   return translatedCommits;
 };
 
+const removeMergeConflicts = (commits: SimpleCommit[]): SimpleCommit[] =>
+  commits.filter((commit): boolean => {
+    const isMerge = commit.description.startsWith('Merge ');
+    const isConflict = commit.description.includes('# Conflicts:');
+
+    return !(isMerge && isConflict);
+  });
+
 (async (): Promise<void> => {
   try {
     let email = config.github.email;
@@ -335,11 +356,14 @@ const translateCommits = async (
 
     const joined = joinLists(commits);
 
-    joined.sort(sortBy('date'));
+    const removeConflicts = removeMergeConflicts(joined);
 
-    let finish: SimpleCommit[] = [...joined];
+    removeConflicts.sort(sortBy('date'));
 
-    const translateDescription = true;
+    let finish: SimpleCommit[] = [...removeConflicts];
+
+    // todo: transform in ENV
+    const translateDescription = false;
 
     if (translateDescription) {
       finish = await translateCommits(joined);
