@@ -6,6 +6,7 @@
   "author": "Davi GV <al.davigvalerio@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "cy:open": "cypress open",
     "start:project": "mkdir markdowns && (cd markdowns && mkdir jira && cd ..) && ((cp config.example.ts config.ts)||(copy config.example.ts config.ts))",
     "git:get-repositories": "tsnd --transpile-only src/github/get-repositories.ts",
     "git:get-days": "tsnd --transpile-only src/github/get-days.ts",
@@ -39,6 +40,7 @@
     "@vitalets/google-translate-api": "^9.2.0",
     "axios": "^1.2.2",
     "axios-cookiejar-support": "^4.0.6",
+    "cypress": "^13.8.1",
     "date-fns": "^2.30.0",
     "http-proxy-agent": "^7.0.0",
     "octokit": "^3.1.1",
