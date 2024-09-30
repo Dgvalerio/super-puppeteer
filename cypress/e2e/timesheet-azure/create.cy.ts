@@ -1,29 +1,12 @@
 /// <reference types="cypress" />
 
 import config from '../../../config';
-import { days } from '../../../markdowns/td';
-import dot = Mocha.reporters.dot;
+import { Days, days } from '../../../markdowns/td';
 
 const baseUrl = 'https://luby-timesheet.azurewebsites.net';
 
-const data: {
-  client: string;
-  project: string;
-  category: string;
-}[] = [
-  {
-    client: '8233',
-    project: '18659',
-    category: '1',
-  },
-];
-
-describe('Add Product to Cart', () => {
-  beforeEach(() => {
-    cy.visit(`${baseUrl}/`);
-  });
-
-  it.skip('Open create page', () => {
+describe('Add Appointment', () => {
+  it('Open create page', () => {
     cy.visit(`${baseUrl}/`);
 
     cy.get('#Login').type(config.timesheet.login);
@@ -48,31 +31,22 @@ describe('Add Product to Cart', () => {
     // Create
     cy.visit(`${baseUrl}/Worksheet/Read`);
 
-    const appointment = data[0];
-
-    const doIt = async (
-      day: {
-        date: string;
-        description: string;
-        time: { initial: string; final: string }[];
-      },
-      time: number
-    ) => {
+    const doIt = async (day: Days, time: number): Promise<void> => {
       cy.get('#WorksheetMultiple_0__InformedDate').type(day.date);
       cy.get(
         '#contents > .col-md-9 > :nth-child(1) > :nth-child(1) > .form-control'
-      ).select(appointment.client);
+      ).select(day.client);
       cy.get(
         '#contents > .col-md-9 > :nth-child(1) > :nth-child(2) > .form-control'
-      ).select(appointment.project);
+      ).select(day.project);
       cy.get(
         '#contents > .col-md-9 > :nth-child(1) > .col-md-3 > .form-control'
-      ).select(appointment.category);
+      ).select(day.category);
       cy.get('#WorksheetMultiple_0__StartTime').type(day.time[time].initial);
       cy.get('#WorksheetMultiple_0__EndTime').type(day.time[time].final);
       cy.get(
         '#contents > .col-md-9 > :nth-child(2) > .col-md-11 > .note-editor > .note-editing-area > .note-editable > p'
-      ).type(day.description, { delay: 0 });
+      ).type(day.description);
 
       // cy.intercept('POST', `${baseUrl}/Worksheet/UpdateMultiple`, []).as(
       //   'create'
@@ -87,13 +61,12 @@ describe('Add Product to Cart', () => {
       if (day.time[time + 1]) await doIt(day, time + 1);
     };
 
-    const doLoop = async (init: number) => {
+    const doLoop = async (init: number): Promise<void> => {
       doIt(days[init], 0);
 
       if (days[init + 1]) await doLoop(init + 1);
     };
 
-    // doIt(days[11], 0);
-    doLoop(14);
+    doLoop(0);
   });
 });
