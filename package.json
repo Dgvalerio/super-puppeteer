@@ -6,6 +6,7 @@
   "author": "Davi GV <al.davigvalerio@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "dev": "tsnd --transpile-only src/dev.ts",
     "cy:open": "cypress open",
     "start:project": "mkdir markdowns && (cd markdowns && mkdir jira && cd ..) && ((cp config.example.ts config.ts)||(copy config.example.ts config.ts))",
     "git:get-repositories": "tsnd --transpile-only src/github/get-repositories.ts",
@@ -19,7 +20,8 @@
     "jira:get-projects": "tsnd --transpile-only src/jira/get-projects.ts",
     "jira:get-project": "tsnd --transpile-only src/jira/get-project.ts",
     "jira:get-detailed-issues": "tsnd --transpile-only src/jira/get-detailed-issues.ts",
-    "jira:get-issues": "tsnd --transpile-only src/jira/get-issues.ts"
+    "jira:get-issues": "tsnd --transpile-only src/jira/get-issues.ts",
+    "jira:get-tasks": "tsnd --transpile-only src/jira/get-task.ts"
   },
   "devDependencies": {
     "@dgvalerio/eslint-config": "^1.5.2",

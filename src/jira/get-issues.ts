@@ -200,7 +200,7 @@ const writeMarkdown = (issues: ISimpleIssueGrouped[]): void => {
     assignee: `"${config.jira.email}"`,
     orderBy: { field: 'priority', order: 'DESC' },
     startAt: 0,
-    maxResults: 20,
+    maxResults: 100,
   });
 
   if (searchResults.total <= 0) return;

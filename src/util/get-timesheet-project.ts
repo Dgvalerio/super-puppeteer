@@ -265,7 +265,7 @@ export const getContext =
           | 'Sprint Review'
           | 'Testes'
           | 'Testes Automatizados'
-  ): Context => {
+  ): Context | undefined => {
     if (client === 'LUBY') {
       const c = '15';
 

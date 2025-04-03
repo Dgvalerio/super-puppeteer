@@ -107,6 +107,8 @@ const loadClients = async (cookies: Cookie[]): Promise<Timesheet.Client[]> => {
 
   const cookies = await loadCookies();
 
+  console.log(cookies);
+
   progress('Carregando clientes...');
 
   const clients = await loadClients(cookies);

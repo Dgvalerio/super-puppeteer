@@ -1,33 +1,187 @@
+>>> 05
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-338: Erros de exibição e estruturação no PDF gerado ao criar a Nota Comercial
+HEM-424: Botão de Aprovar e reprovar aparecendo para o primeiro aprovador
 
+>>> 06
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-393: Ao clicar no link da Nota Comercial (NC), a tela volta para a aba "Em Digitação"
+HEM-424: Botão de Aprovar e reprovar aparecendo para o primeiro aprovador
+HEM-403: Validação incorreta ao marcar "Investidor Externo" após erro no CNPJ
+HEM-392: Filtro de Data não funciona ao alternar entre abas da Situação da NC
 
+>>> 07
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
+  Alinhamento para mensuração Hemera
 
+HEM-393: Ao clicar no link da Nota Comercial (NC), a tela volta para a aba "Em Digitação"
+HEM-429: Erro ao criar uma NC
+HEM-403: Validação incorreta ao marcar "Investidor Externo" após erro no CNPJ
+HEM-414: Não está sendo obrigatórios os Avalistas e Cônjuges no fluxo de pagamento
+HEM-391: Bloquear envio de Nota Comercial (NC) sem planilha de fluxo carregada
 
+>>> 10
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-429: Erro ao criar uma NC
 
+>>> 11
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-429: Erro ao criar uma NC
 
+>>> 12 ??
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-434: Front - criar tela de inicio do portal
+Resolvendo problema com aprovação
+Resolvendo problema no PDF
 
+>>> 13
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-434: Front - criar tela de inicio do portal
+HEM-435: liberar consulta para o escriturador
 
+>>> 14
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-436: Botão Aprovar está aparecendo para o primeiro e segundo aprovador após aprovação
+HEM-438: Notas canceladas não exibem informações de cancelamento
+HEM-439: Usuário com permissão "Grupo = Custódia" e "Papel = Junior" pode baixar arquivos e visualizar botão "Enviar para aprovação" indevidamente
 
+>>> 17
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-439: Usuário com permissão "Grupo = Custódia" e "Papel = Junior" pode baixar arquivos e visualizar botão "Enviar para aprovação" indevidamente
+HEM-441: Estruturador Junior não está podendo Criar NC, está dando erro ao gerar pdf.
 
+>>> 18
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-439: Usuário com permissão "Grupo = Custódia" e "Papel = Junior" pode baixar arquivos e visualizar botão "Enviar para aprovação" indevidamente
+HEM-464: Tratamento de erro no nome de usuário
+HEM-465: Master/Custodia - senior não está conseguindo soliciatar pagamento
 
+>>> 19
 
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
 
+HEM-465: Master/Custodia - senior não está conseguindo soliciatar pagamento
+HEM-441: Estruturador Junior não está podendo Criar NC, está dando erro ao gerar pdf.
+HEM-466: Exibição Indevida do Botão 'Cancelar' na Tela de Aprovação NC
+HEM-439: Usuário com permissão "Grupo = Custódia" e "Papel = Junior" pode baixar arquivos e visualizar botão "Enviar para aprovação" indevidamente
+
+>>> 20
+
+Participando das reuniões:
+  Hemera & Luby - Daily
+  SSO & Portal de Notas - Daily
+
+HEM-466: Exibição Indevida do Botão 'Cancelar' na Tela de Aprovação NC
+HEM-441: Estruturador Junior não está podendo Criar NC, está dando erro ao gerar pdf.
+HEM-392: Filtro de Data não funciona ao alternar entre abas da Situação da NC
+HEM-469: Criar uma Tela de Vizualização de Modelo NC para consulta
+
+>>> 21 ???
+
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
+
+HEM-469: Criar uma Tela de Vizualização de Modelo NC para consulta
+HEM-414: Não está sendo obrigatórios os Avalistas e Cônjuges no fluxo de pagamento
+
+>>> 24
+
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
+  Planning sprint 15 - portal de notas
+
+HEM-414: Não está sendo obrigatórios os Avalistas e Cônjuges no fluxo de pagamento
+
+>>> 25
+
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Hemera & Luby - Daily
+
+HEM-414: Não está sendo obrigatórios os Avalistas e Cônjuges no fluxo de pagamento
+
+>>> 26
+
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Alinhamento prototipo - Hemera
+  Bate-papo com Alon (11h - 12h)
+
+HEM-440: (Front) Mensagem de erro ao ser deslogado do sistema é generico
+HEM-391: Bloquear envio de Nota Comercial (NC) sem planilha de fluxo carregada
+HEM-478: Dados da nota não estão sendo exibido corretamente na aba garantias
+
+>>> 27
+
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Alinhamento prototipo - Hemera
+
+HEM-482: O sistema da o alerta, porem é enviado a assinatura
+HEM-414: Não está sendo obrigatórios os Avalistas e Cônjuges no fluxo de pagamento
+HEM-391: Bloquear envio de Nota Comercial (NC) sem planilha de fluxo carregada
+
+>>> 28
+
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+
+Corrigindo PR referente a task de tela de usuários
+Avaliando tasks
+Revisando protótipo
+
+>>> 31
+
+Participando das reuniões:
+  SSO & Portal de Notas - Daily
+  Investigação quanto ao problema em produção
+
+HEM-494: Front - Digito da conta não está sendo exibido na tela e no PDF
+HEM-495: Atualizar versão do next
+HEM-453: Front - Adicionar itens expansiveis ao menu
+
+1-1
 

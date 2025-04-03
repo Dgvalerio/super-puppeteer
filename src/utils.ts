@@ -47,6 +47,8 @@ export const loadCookies = async (): Promise<Cookie[]> => {
 
     wrapper(axios);
 
+    console.log({ token, verificationToken });
+
     await axios.post(
       'https://luby-timesheet.azurewebsites.net/Account/Login',
       `__RequestVerificationToken=${token}&Login=${config.timesheet.login}&Password=${config.timesheet.password}`,

@@ -38,11 +38,9 @@ const errorHandler = (e: AxiosError): void => {
   }
 };
 
-const getAllProjects = async (): Promise<Pagination<IProject>> => {
+const getAllProjects = async (): Promise<IProject[]> => {
   try {
-    const response = await api.get<Pagination<IProject>>(
-      `/rest/api/3/project/search`
-    );
+    const response = await api.get<IProject[]>(`/rest/api/3/project`);
 
     return response.data;
   } catch (e) {
